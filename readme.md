@@ -12,12 +12,23 @@ This project is a Dockerized face recognition application that processes video s
 ### 1. Clone the Repository
 Clone this repository to your local machine to get started.
 ```
-git clone <repository-url>
-cd <repository-directory>
+git clone https://github.com/norman-albusberger/face-recognition-streaming
 ```
 
-### 2. Prepare Image Directory
-Place images of known individuals in the `knownfaces` directory, with the file name as the identifier for the face (e.g., `john_doe.jpg` for John Doe).
+### 2. Prepare Image Directory for Known Faces
+You have two options for setting up the directory with images of known individuals:
+
+#### Option A: Local Directory Inside the Container
+Place images in the `test-images` directory within the project. Each image file should be named after the individual it represents (e.g., `john_doe.jpg` for John Doe). These images will be copied into the Docker image at build time.
+
+#### Option B: Directory on the Host or Network Drive
+To use a directory from the host machine or a network drive, you can mount it as a volume in your Docker container. This allows for easier updates to the known faces without rebuilding the Docker image.
+
+In your `docker-compose.yml`, specify the volume mount:
+```yaml
+volumes:
+  - /path/on/host/to/known/faces:/knownfaces
+
 
 ### 3. Configure Environment Variables
 Create a `.env` file in the root directory of the project and define the necessary environment variables:
@@ -29,6 +40,14 @@ OUTPUT_PATH=/video
 IMAGE_DIRECTORY=/app/test-images
 ```
 Replace `<your_input_stream_url>` with the actual stream URL of your video source.
+
+## Understanding the OUTPUT_HOST Setting
+The `OUTPUT_HOST` environment variable is set to `0.0.0.0`, which instructs the Flask server within the Docker container to listen on all network interfaces. This setting is crucial for Docker environments because:
+
+- **`127.0.0.1` or `localhost`**: Would restrict the server to accept connections only from within the same Docker container.
+- **`0.0.0.0`**: Allows the server to accept connections from any IP address that can reach the container, making it accessible from the host machine and other devices on the same network, provided the correct port mappings are in place.
+
+This setup ensures that you can access the Flask application from your host machine's browser or from other devices in the network, not just from within the container.
 
 ### 4. Build and Run the Docker Container
 Using Docker Compose:
