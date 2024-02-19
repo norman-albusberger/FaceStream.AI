@@ -12,9 +12,6 @@ OUTPUT_PATH = os.getenv('OUTPUT_PATH', '/video_feed')
 
 app = Flask(__name__)
 
-
-
-
 def generate_frames():
     video_capture = cv2.VideoCapture(INPUT_STREAM_URL)
 

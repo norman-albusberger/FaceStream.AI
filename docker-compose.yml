@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  face-recognition-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"  # Map port 5000 of the container to port 5000 on the host
+    volumes:
+      - ./app:/app  # Mount the local 'app' directory to '/app' in the container
