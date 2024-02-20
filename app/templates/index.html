@@ -54,13 +54,6 @@
         <p>Set your stream URL in the <code>.env</code> file or Docker environment variable
             <code>INPUT_STREAM_URL</code>. Currently configured as: <code>{{ stream_url }}</code>.</p>
     </div>
-
-    <div class="section">
-        <h2>Accessing the Stream</h2>
-        <p>Once configured, access the processed stream at <a href={{ host_ip }}:{{ port }}{{ video_path }}">{{ host_ip }}:{{ port }}{{ video_path }}</a>.
-        </p>
-    </div>
-
     <div class="section">
         <h2>Configuration Instructions</h2>
         <p>Set your stream URL in the <code>.env</code> file or Docker environment variable
@@ -69,7 +62,7 @@
 
     <div class="section">
         <h2>Accessing the Stream</h2>
-        <p>Once configured, access the processed stream at <code>http://your_host_ip:5001/video</code>.</p>
+        <p>Once configured, access the processed stream at <code><a href="http://localhost:{{port}}/video">http://localhost:{{port}}/video</a></code>.</p>
     </div>
 
     <div class="section">
