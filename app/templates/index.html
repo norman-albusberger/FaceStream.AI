@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition Stream Guide</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        p {
+            margin: 10px 0;
+        }
+
+        .section {
+            background: #f4f4f4;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        code {
+            background: #eee;
+            padding: 2px 5px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Face Recognition Stream Guide</h1>
+
+    <div class="section">
+        <h2>Introduction</h2>
+        <p>This guide helps you configure and use the face recognition streaming project.</p>
+    </div>
+
+    <div class="section">
+        <h2>Configuration Instructions</h2>
+        <p>Set your stream URL in the <code>.env</code> file or Docker environment variable
+            <code>INPUT_STREAM_URL</code>. Currently configured as: <code>{{ stream_url }}</code>.</p>
+    </div>
+
+    <div class="section">
+        <h2>Accessing the Stream</h2>
+        <p>Once configured, access the processed stream at <a href={{ host_ip }}:{{ port }}{{ video_path }}">{{ host_ip }}:{{ port }}{{ video_path }}</a>.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Configuration Instructions</h2>
+        <p>Set your stream URL in the <code>.env</code> file or Docker environment variable
+            <code>INPUT_STREAM_URL</code>.</p>
+    </div>
+
+    <div class="section">
+        <h2>Accessing the Stream</h2>
+        <p>Once configured, access the processed stream at <code>http://your_host_ip:5001/video</code>.</p>
+    </div>
+
+    <div class="section">
+        <h2>Troubleshooting Tips</h2>
+        <p>Ensure the stream URL is accessible and check Docker logs for any errors.</p>
+    </div>
+</div>
+</body>
+</html>

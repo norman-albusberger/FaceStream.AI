@@ -2,13 +2,13 @@ import os
 import face_recognition
 import cv2
 import numpy as np
-from flask import Flask, Response
+from flask import Flask, Response, render_template
 
 # Configuration from environment variables
 INPUT_STREAM_URL = os.getenv('INPUT_STREAM_URL', '/dev/video0')
 OUTPUT_HOST = os.getenv('OUTPUT_HOST', '0.0.0.0')
 OUTPUT_PORT = int(os.getenv('OUTPUT_PORT', '5000'))
-OUTPUT_PATH = os.getenv('OUTPUT_PATH', '/video_feed')
+OUTPUT_PATH = os.getenv('OUTPUT_PATH', '/video')
 IMAGE_DIRECTORY = os.getenv('IMAGE_DIRECTORY', '/default/path/if/not/set')
 
 app = Flask(__name__)
@@ -113,6 +113,17 @@ def generate_frames():
 @app.route(OUTPUT_PATH)
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/')
+def guide():
+    # Retrieve environment variables
+    stream_url = os.getenv('INPUT_STREAM_URL')
+    host_ip = os.getenv('OUTPUT_HOST')
+    port = os.getenv('OUTPUT_PORT')
+    video_path = os.getenv('OUTPUT_PATH')
+
+    # Pass them to the template
+    return render_template('index.html', stream_url=stream_url, host_ip=host_ip, port=port, video_path=video_path)
 
 
 if __name__ == '__main__':
