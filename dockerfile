@@ -1,29 +1,53 @@
-# Use an official lightweight Python image as the base image
-FROM python:3.8-slim
+# Erste Stufe: Builder-Image
+FROM python:3.8-slim-buster AS builder
 
-# Set the working directory inside the container to /app
-WORKDIR /app
-
-# for local
-#COPY app /app
-
-# Install system dependencies required for the face_recognition and OpenCV libraries
-# Combine apt-get update, package installation, and cleanup into a single RUN command to reduce image layers and size
+# Installieren der notwendigen Systempakete für die Kompilierung
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
+    gfortran \
     libsm6 \
     libxext6 \
     libxrender-dev \
     git \
- && rm -rf /var/lib/apt/lists/*
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-# Use pip to install the face_recognition library directly from the repository to get the latest version
-# Install opencv-python-headless to avoid unnecessary GUI dependencies for headless environments
-RUN pip install --no-cache-dir git+https://github.com/ageitgey/face_recognition \
-    && pip install --no-cache-dir opencv-python-headless \
-    && pip install flask
+# Erstellen eines virtuellen Python-Umgebungsverzeichnisses
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Set the default command to execute the face recognition script when the container starts
+# Manuelle Installation von dlib
+RUN pip install --upgrade pip && \
+    git clone -b 'v19.21' --single-branch https://github.com/davisking/dlib.git && \
+    cd dlib/ && \
+    python3 setup.py install --set BUILD_SHARED_LIBS=OFF
+
+# Installieren von face_recognition und anderen benötigten Paketen
+RUN pip install face_recognition opencv-python-headless flask
+
+# Zweite Stufe: Runtime-Image
+FROM python:3.8-slim-buster AS runtime
+
+# Kopieren der virtuellen Umgebung vom Builder-Image
+COPY --from=builder /opt/venv /opt/venv
+
+# Setzen des Pfades für die virtuelle Umgebung
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Installieren von Runtime-Abhängigkeiten
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Arbeitsverzeichnis setzen
+WORKDIR /app
+
+# Anwendungsdateien in das Arbeitsverzeichnis kopieren
+#COPY . /app
+
+
 CMD ["python", "face-recognition-stream.py"]
