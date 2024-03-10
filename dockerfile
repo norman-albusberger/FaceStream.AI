@@ -25,7 +25,7 @@ RUN pip install --upgrade pip && \
     python3 setup.py install --set BUILD_SHARED_LIBS=OFF
 
 # Installieren von face_recognition und anderen benötigten Paketen
-RUN pip install face_recognition opencv-python-headless flask
+RUN pip install face_recognition opencv-python-headless flask flask-requests
 
 # Zweite Stufe: Runtime-Image
 FROM python:3.8-slim-buster AS runtime
