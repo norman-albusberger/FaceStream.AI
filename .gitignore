@@ -2,3 +2,4 @@
 app/test-images
 .env
 knownfaces
+.env.local
