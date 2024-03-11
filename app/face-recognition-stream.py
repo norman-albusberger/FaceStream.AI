@@ -25,24 +25,22 @@ class VideoStreamApp:
                                    video_path=config.OUTPUT_PATH)
 
     def draw_rectangle_with_name(self, frame, top, right, bottom, left, name):
-        # Definieren der Transparenz (zwischen 0 und 1)
+        # define transparency from config
         transparency = config.OVERLAY_TRANSPARENCY
-        print(transparency)
 
-        # Erstellen eines Overlay, um die Transparenz zu simulieren
+        # create overlay with transparency
         overlay = frame.copy()
         cv2.rectangle(overlay, (left, top), (right, bottom), (220, 220, 200), -1)  # -1 füllt das Rechteck aus
 
-        # Kombinieren des Overlays mit dem Originalbild, um die Transparenz zu simulieren
         cv2.addWeighted(overlay, transparency, frame, 1 - transparency, 0, frame)
 
-        # Schreibe den Namen des Gesichts unter das Rechteck
+        # name under the box
         cv2.putText(frame, name, (left, bottom + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
 
     def generate_frames(self):
         video_capture = cv2.VideoCapture(config.INPUT_STREAM_URL)
 
-        fps_limit = 10  # Ziel-Frame-Rate
+        fps_limit = 10  # target frame rate
         time_per_frame = 1.0 / fps_limit
         last_time = 0
 
@@ -55,7 +53,7 @@ class VideoStreamApp:
 
             current_time = time.time()
             if current_time - last_time < time_per_frame:
-                continue  # Überspringt die Verarbeitung dieses Frames
+                continue
 
             last_time = current_time
 
@@ -71,13 +69,13 @@ class VideoStreamApp:
                     first_match_index = matches.index(True)
                     name = self.face_recognition.known_face_names[first_match_index]
 
-                # Skaliere die Gesichtspositionen zurück, da das Frame verkleinert wurde
+                # rescale face_locations
                 top *= 4
                 right *= 4
                 bottom *= 4
                 left *= 4
 
-                # Rufe die Methode zum Zeichnen des Rechtecks und des Namens auf
+
                 self.draw_rectangle_with_name(frame, top, right, bottom, left, name)
 
             (flag, encodedImage) = cv2.imencode(".jpg", frame)
@@ -90,5 +88,6 @@ class VideoStreamApp:
 
 
 if __name__ == '__main__':
+    # starting the server
     video_stream_app = VideoStreamApp()
     video_stream_app.run()
