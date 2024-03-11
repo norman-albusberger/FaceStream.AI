@@ -6,6 +6,7 @@ import face_recognition
 from Lib import FaceRecognition
 import time
 
+
 class VideoStreamApp:
     def __init__(self):
         self.app = Flask(__name__)
@@ -25,8 +26,7 @@ class VideoStreamApp:
 
     def draw_rectangle_with_name(self, frame, top, right, bottom, left, name):
         # Definieren der Transparenz (zwischen 0 und 1)
-        transparency = 0.2
-        print("schwul")
+        transparency = config.OVERLAY_TRANSPARENCY
         print(transparency)
 
         # Erstellen eines Overlay, um die Transparenz zu simulieren
@@ -48,7 +48,8 @@ class VideoStreamApp:
 
         while True:
             ret, frame = video_capture.read()
-            frame = cv2.resize(frame, (640, 480))  # Beispiel für angepasste Größe
+            frame = cv2.resize(frame, (config.OUTPUT_WIDTH, config.OUTPUT_HEIGHT))  # Beispiel für angepasste Größe
+
             if not ret:
                 break
 
@@ -82,7 +83,7 @@ class VideoStreamApp:
             (flag, encodedImage) = cv2.imencode(".jpg", frame)
             if not flag:
                 continue
-            yield (b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + bytearray(encodedImage) + b'\r\n')
+            yield b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + bytearray(encodedImage) + b'\r\n'
 
     def run(self):
         self.app.run(host=config.OUTPUT_HOST, port=config.OUTPUT_PORT, threaded=True, use_reloader=False)
