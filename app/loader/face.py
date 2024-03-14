@@ -1,11 +1,18 @@
-import config
 import os
+from config.manager import ConfigManager
 import face_recognition
-class FaceRecognition:
+
+
+class FaceLoader:
     def __init__(self):
+        config_path = os.path.join('data', 'config.json')
+        self.config_manager = ConfigManager(config_path)
+        image_directory = self.config_manager.get('image_directory')
+        print("test")
+        print(image_directory)
         self.known_face_encodings = []
         self.known_face_names = []
-        self.load_known_faces(config.IMAGE_DIRECTORY)
+        self.load_known_faces(image_directory)
 
     def load_known_faces(self, directory):
         for filename in os.listdir(directory):

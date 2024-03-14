@@ -1,32 +1,43 @@
-import config
+import os
 import cv2
 import numpy as np
 from flask import Flask, Response, render_template
 import face_recognition
-from Lib import FaceRecognition
 import time
 
 
 class VideoStreamApp:
     def __init__(self):
         self.app = Flask(__name__)
+
+        # Konfiguration laden
+        config_path = os.path.join('data', 'config.json')
+        self.config_manager = ConfigManager(config_path)
+        self.input_stream_url = self.config_manager.get('input_stream_url')
+        self.output_host = self.config_manager.get('output_host')
+        self.output_port = self.config_manager.get('output_port')
+        self.output_path = self.config_manager.get('output_path')
+        self.overlay_transparency = self.config_manager.get('overlay_transparency',0.5)  # Standardwert falls nicht definiert
+        self.output_width = self.config_manager.get('output_width')
+        self.output_height = self.config_manager.get('output_height')
+
         self.face_recognition = FaceRecognition()
         self.define_routes()
 
     def define_routes(self):
-        @self.app.route(config.OUTPUT_PATH)
+        @self.app.route(self.output_path)
         def video_feed():
             return Response(self.generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
         @self.app.route('/')
         def guide():
-            return render_template('index.html', stream_url=config.INPUT_STREAM_URL, host_ip=config.OUTPUT_HOST,
-                                   port=config.OUTPUT_PORT,
-                                   video_path=config.OUTPUT_PATH)
+            return render_template('index.html', stream_url=self.input_stream_url, host_ip=self.output_host,
+                                   port=self.output_port,
+                                   video_path=self.output_path)
 
     def draw_rectangle_with_name(self, frame, top, right, bottom, left, name):
         # define transparency from config
-        transparency = config.OVERLAY_TRANSPARENCY
+        transparency = self.overlay_transparency
 
         # create overlay with transparency
         overlay = frame.copy()
@@ -38,7 +49,7 @@ class VideoStreamApp:
         cv2.putText(frame, name, (left, bottom + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
 
     def generate_frames(self):
-        video_capture = cv2.VideoCapture(config.INPUT_STREAM_URL)
+        video_capture = cv2.VideoCapture(self.input_stream_url)
 
         fps_limit = 10  # target frame rate
         time_per_frame = 1.0 / fps_limit
@@ -46,7 +57,7 @@ class VideoStreamApp:
 
         while True:
             ret, frame = video_capture.read()
-            frame = cv2.resize(frame, (config.OUTPUT_WIDTH, config.OUTPUT_HEIGHT))  # Beispiel für angepasste Größe
+            frame = cv2.resize(frame, (self.output_width, self.output_height))  # Beispiel für angepasste Größe
 
             if not ret:
                 break
@@ -75,7 +86,6 @@ class VideoStreamApp:
                 bottom *= 4
                 left *= 4
 
-
                 self.draw_rectangle_with_name(frame, top, right, bottom, left, name)
 
             (flag, encodedImage) = cv2.imencode(".jpg", frame)
@@ -84,10 +94,10 @@ class VideoStreamApp:
             yield b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + bytearray(encodedImage) + b'\r\n'
 
     def run(self):
-        self.app.run(host=config.OUTPUT_HOST, port=config.OUTPUT_PORT, threaded=True, use_reloader=False)
+        self.app.run(host=self.output_host, port=self.output_port, threaded=True, use_reloader=False)
 
 
 if __name__ == '__main__':
-    # starting the server
+    # starting the stream
     video_stream_app = VideoStreamApp()
     video_stream_app.run()

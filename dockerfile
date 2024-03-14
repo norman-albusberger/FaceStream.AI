@@ -50,4 +50,4 @@ WORKDIR /app
 #COPY . /app
 
 
-CMD ["python", "face-recognition-stream.py"]
+CMD ["python", "VideoStreamApp.py"]

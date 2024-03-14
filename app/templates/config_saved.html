@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Konfiguration gespeichert!</h1>
+<p>Der Server wird neu gestartet. Sie werden in Kürze zur Startseite umgeleitet...</p>
+
+<script>
+    setTimeout(function () {
+        window.location.href = '/'; // JavaScript-basierte Umleitung
+    }, 10000); // 10000 Millisekunden = 10 Sekunden
+</script>
+{% endblock %}
