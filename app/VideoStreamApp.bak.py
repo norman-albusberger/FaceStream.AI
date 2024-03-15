@@ -45,7 +45,7 @@ class VideoStreamApp:
 
         @self.app.route('/', methods=['GET', 'POST'])
         def config():
-            config_manager = ConfigManager(os.path.join('data', 'config.json'))
+            config_manager = ConfigManager(os.path.join('../data', 'config.json'))
             config_manager.load_config()
             actual_config = config_manager.config
             if request.method == 'POST':
@@ -88,7 +88,7 @@ class VideoStreamApp:
 
 def main() -> object:
     # Konfigurationsmanager instanziieren
-    config_path = os.path.join('data', 'config.json')
+    config_path = os.path.join('../data', 'config.json')
     config_manager = ConfigManager(config_path)
 
     # VideoStreamApp mit Konfigurationsmanager instanziieren

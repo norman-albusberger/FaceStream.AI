@@ -1,0 +1,18 @@
+# Basierend auf einem offiziellen Python-Image
+FROM python:3.8
+
+# Arbeitsverzeichnis festlegen
+WORKDIR /app
+
+# Abhängigkeiten direkt installieren
+RUN pip install flask flask-requests requests
+
+# Anwendungskode kopieren
+COPY . /app/
+
+# Startbefehl festlegen
+CMD ["python", "ConfigServer.py"]
+
+
+# Port exponieren
+EXPOSE 5000

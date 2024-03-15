@@ -25,7 +25,7 @@ RUN pip install --upgrade pip && \
     python3 setup.py install --set BUILD_SHARED_LIBS=OFF
 
 # Installieren von face_recognition und anderen benötigten Paketen
-RUN pip install face_recognition opencv-contrib-python-headless flask flask-requests
+RUN pip install face_recognition opencv-contrib-python-headless flask flask-requests psutil
 
 # Zweite Stufe: Runtime-Image
 FROM python:3.8-slim-buster AS runtime
@@ -46,8 +46,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Arbeitsverzeichnis setzen
 WORKDIR /app
 
+# Port exponieren
+EXPOSE 5000
+
 # Anwendungsdateien in das Arbeitsverzeichnis kopieren
 #COPY . /app
 
 
-CMD ["python", "VideoStreamApp.py"]
+CMD ["python", "VideoStreamServer.py"]

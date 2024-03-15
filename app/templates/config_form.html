@@ -1,55 +1,118 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="container mt-5 px-lg-5">
-    <h2>Konfigurationseinstellungen</h2>
-    <form method="post">
-        <div class="mb-3">
-            <label for="inputStreamURL" class="form-label">Input Stream URL</label>
-            <input type="text" class="form-control" id="inputStreamURL" name="input_stream_url" value="{{ config.input_stream_url }}" required>
-        </div>
 
-        <div class="mb-3">
-            <label for="outputHost" class="form-label">Output Host</label>
-            <input type="text" class="form-control" id="outputHost" name="output_host" value="{{ config.output_host }}" required>
-        </div>
 
-        <div class="mb-3">
-            <label for="outputPort" class="form-label">Output Port</label>
-            <input type="number" class="form-control" id="outputPort" name="output_port" value="{{ config.output_port }}" required>
-        </div>
+<!-- Nav tabs -->
+<ul class="nav nav-tabs" id="configTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button"
+                role="tab" aria-controls="settings" aria-selected="true">Einstellungen
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="known-faces-tab" data-bs-toggle="tab" data-bs-target="#known-faces" type="button"
+                role="tab" aria-controls="known-faces" aria-selected="false">Bekannte Gesichter
+        </button>
+    </li>
+</ul>
 
-        <div class="mb-3">
-            <label for="outputPath" class="form-label">Output Path</label>
-            <input type="text" class="form-control" id="outputPath" name="output_path" value="{{ config.output_path }}" required>
-        </div>
+<!-- Tab panes -->
+<div class="tab-content">
+    <!-- Einstellungen Tab -->
+    <div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
 
-        <div class="mb-3">
-            <label for="imageDirectory" class="form-label">Image Directory</label>
-            <input type="text" class="form-control" id="imageDirectory" name="image_directory" value="{{ config.image_directory }}" required>
-        </div>
+        <form method="post">
+            <div class="row">
+                <div class="col-6">
+                    <label for="inputStreamURL" class="form-label">Input Stream URL</label>
+                    <input type="text" class="form-control" id="inputStreamURL" name="input_stream_url"
+                           value="{{ config.input_stream_url }}" required>
+                </div>
 
-        <div class="mb-3">
-            <label for="notificationServiceURL" class="form-label">Notification Service URL</label>
-            <input type="text" class="form-control" id="notificationServiceURL" name="notification_service_url" value="{{ config.notification_service_url }}">
-        </div>
+                <div class="col-6">
+                    <label for="notificationServiceURL" class="form-label">Notification Service URL</label>
+                    <input type="text" class="form-control" id="notificationServiceURL" name="notification_service_url"
+                           value="{{ config.notification_service_url }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <label for="outputWidth" class="form-label">Output Width</label>
+                    <input type="number" class="form-control" id="outputWidth" name="output_width"
+                           value="{{ config.output_width }}" required>
+                </div>
 
-        <div class="mb-3">
-            <label for="overlayTransparency" class="form-label">Overlay Transparency</label>
-            <input type="number" step="0.1" min="0" max="1" class="form-control" id="overlayTransparency" name="overlay_transparency" value="{{ config.overlay_transparency }}" required>
-        </div>
+                <div class="col-6">
+                    <label for="outputHeight" class="form-label">Output Height</label>
+                    <input type="number" class="form-control" id="outputHeight" name="output_height"
+                           value="{{ config.output_height }}" required>
+                </div>
 
-        <div class="mb-3">
-            <label for="outputWidth" class="form-label">Output Width</label>
-            <input type="number" class="form-control" id="outputWidth" name="output_width" value="{{ config.output_width }}" required>
-        </div>
+            </div>
+            <div class="container mt-5">
+                <h2>Einstellungen für das Overlay</h2>
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label for="colorPicker" class="form-label">Select Color</label>
+                            <input type="color" class="form-control form-control-color" id="colorPicker" name="overlay_color"
+                                   value="{{ hex_color }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="overlayTransparency" class="form-label">Transparency (0 - 100)</label>
+                            <input type="range" class="form-range" min="0" max="100"
+                                   value="{{ transparency_value }}" id="overlayTransparency" name="overlay_transparency">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="image-container">
+                            <img src="{{ url_for('static', filename='img/avatar.webp') }}" alt="Avatar Face"
+                                 class="img-fluid">
+                            <!-- Replace placeholder-avatar.jpg with your image path -->
+                            <div class="colorOverlayContainer">
+                                <div class="overlay" id="colorOverlay"
+                                     style="background-color: {{ rgba_overlay }};"></div>
+                                <div style="color:white">Name
+                                </div>
 
-        <div class="mb-3">
-            <label for="outputHeight" class="form-label">Output Height</label>
-            <input type="number" class="form-control" id="outputHeight" name="output_height" value="{{ config.output_height }}" required>
-        </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary">Änderungen speichern</button>
 
-        <button type="submit" class="btn btn-primary">Änderungen speichern</button>
-    </form>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+    <!-- Bekannte Gesichter Tab -->
+    <div class="tab-pane fade" id="known-faces" role="tabpanel" aria-labelledby="known-faces-tab">
+        <!-- Dropzone für den Upload -->
+        <form action="{{ url_for('upload_faces') }}" class="dropzone" id="knownFacesDropzone">
+            <div class="container p-5">
+                <div class="border-dashed border-2 border-primary rounded p-5 text-center">
+                    <p class="m-3 dz-message">Ziehe Dateien hierher oder klicke, um sie auszuwählen.</p>
+                </div>
+            </div>
+        </form>
+
+        <!-- Liste der vorhandenen Gesichter -->
+        <div class="known-faces-list mt-4">
+            <h4>Vorhandene Gesichter</h4>
+            <div class="known-faces-list">
+           {% include '_face_list.html' %}
+            </div>
+        </div>
+    </div>
 </div>
+<script>
+
+</script>
 {% endblock %}
+

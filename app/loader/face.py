@@ -5,14 +5,12 @@ import face_recognition
 
 class FaceLoader:
     def __init__(self):
-        config_path = os.path.join('data', 'config.json')
-        self.config_manager = ConfigManager(config_path)
-        image_directory = self.config_manager.get('image_directory')
+        img_dir = os.path.join('/data', 'knownfaces')
         print("test")
-        print(image_directory)
+        print(img_dir)
         self.known_face_encodings = []
         self.known_face_names = []
-        self.load_known_faces(image_directory)
+        self.load_known_faces(img_dir)
 
     def load_known_faces(self, directory):
         for filename in os.listdir(directory):

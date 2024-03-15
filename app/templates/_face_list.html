@@ -1,0 +1,9 @@
+<div class="list-group">
+    {% for face in known_faces %}
+    <a href="#" class="list-group-item list-group-item-action">
+        <img src="{{ url_for('knownfaces', filename=face) }}" class="img-thumbnail" width="200"
+             alt="Gesicht">
+        {{ face }}
+    </a>
+    {% endfor %}
+</div>

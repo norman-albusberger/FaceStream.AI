@@ -2,7 +2,14 @@
 
 {% block content %}
 <h1>Konfiguration gespeichert!</h1>
-<p>Der Server wird neu gestartet. Sie werden in Kürze zur Startseite umgeleitet...</p>
+<p> Sie werden in Kürze zur Startseite umgeleitet...</p>
+
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <strong>Hinweis:</strong> Änderungen wurden gespeichert. Bitte starten Sie den VideoStream-Container neu, um die Änderungen zu übernehmen.
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
+</div>
+
+
 
 <script>
     setTimeout(function () {

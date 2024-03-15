@@ -4,17 +4,20 @@ import face_recognition
 
 
 class VideoStream:
-    def __init__(self, input_stream_url, overlay_transparency, output_width, output_height, face_loader):
+    def __init__(self, input_stream_url, overlay_color, overlay_transparency, output_width, output_height, face_loader):
         self.video_capture = cv2.VideoCapture(input_stream_url)
         self.overlay_transparency = overlay_transparency
+        self.overlay_color = overlay_color
+        print(self.overlay_color)
         self.output_width = output_width
         self.output_height = output_height
         self.face_loader = face_loader
 
     def draw_rectangle_with_name(self, frame, top, right, bottom, left, name):
         transparency = self.overlay_transparency
+
         overlay = frame.copy()
-        cv2.rectangle(overlay, (left, top), (right, bottom), (220, 220, 200), -1)  # -1 fills the rectangle
+        cv2.rectangle(overlay, (left, top), (right, bottom), self.overlay_color, -1)  # -1 fills the rectangle
         cv2.addWeighted(overlay, transparency, frame, 1 - transparency, 0, frame)
         cv2.putText(frame, name, (left, bottom + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
 
