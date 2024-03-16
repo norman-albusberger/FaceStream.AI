@@ -5,7 +5,7 @@ import face_recognition
 
 class FaceLoader:
     def __init__(self):
-        img_dir = os.path.join('/data', 'knownfaces')
+        img_dir = os.path.join('data', 'knownfaces')
         print("test")
         print(img_dir)
         self.known_face_encodings = []

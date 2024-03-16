@@ -50,7 +50,7 @@ WORKDIR /app
 EXPOSE 5000
 
 # Anwendungsdateien in das Arbeitsverzeichnis kopieren
-#COPY . /app
+COPY . /app
 
 
 CMD ["python", "VideoStreamServer.py"]

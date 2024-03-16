@@ -50,8 +50,8 @@
                 </div>
 
             </div>
-            <div class="container mt-5">
-                <h2>Einstellungen für das Overlay</h2>
+            <div class="mt-5">
+                <h3>Einstellungen für das Overlay</h3>
                 <div class="row">
                     <div class="col">
                         <div class="mb-3">
@@ -68,7 +68,7 @@
                     <div class="col">
                         <div class="image-container">
                             <img src="{{ url_for('static', filename='img/avatar.webp') }}" alt="Avatar Face"
-                                 class="img-fluid">
+                                 class="img-fluid" style="max-width: 400px">
                             <!-- Replace placeholder-avatar.jpg with your image path -->
                             <div class="colorOverlayContainer">
                                 <div class="overlay" id="colorOverlay"
@@ -97,7 +97,9 @@
         <form action="{{ url_for('upload_faces') }}" class="dropzone" id="knownFacesDropzone">
             <div class="container p-5">
                 <div class="border-dashed border-2 border-primary rounded p-5 text-center">
-                    <p class="m-3 dz-message">Ziehe Dateien hierher oder klicke, um sie auszuwählen.</p>
+                    <p class="m-3 dz-message">Ziehen Sie Fotos mit einzelnen Gesichtern (nicht mehr als eine Person) hier rein.
+
+                        Der Dateiname sollte dem Namen der Person entsprechen.</p>
                 </div>
             </div>
         </form>

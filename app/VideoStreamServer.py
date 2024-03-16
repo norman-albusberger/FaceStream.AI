@@ -4,11 +4,20 @@ import os
 from flask import Flask, Response
 from config.manager import ConfigManager
 from stream.video import VideoStream
-import sys
-import psutil
-import logging
+import threading
+import time
+import signal
 
 from loader.face import FaceLoader
+
+
+def check_for_restart_signal(signal_file_path, interval=10):
+    while True:
+        if os.path.exists(signal_file_path):
+            print("Signaldatei gefunden. Server wird neu gestartet...")
+            os.remove(signal_file_path)  # Signaldatei löschen
+            os.kill(os.getpid(), signal.SIGTERM)  # Supervisord zum Neustart veranlassen
+        time.sleep(interval)  # Wartezeit bis zur nächsten Überprüfung
 
 
 class VideoStreamServer:
@@ -25,40 +34,27 @@ class VideoStreamServer:
         )
         self.define_routes()
 
+        signal_file_path = 'data/signal_file'  # Pfad zur Signaldatei für neustart
+        restart_thread = threading.Thread(target=check_for_restart_signal, args=(signal_file_path,))
+        restart_thread.daemon = True  # Stellen Sie sicher, dass der Thread als Daemon läuft
+        restart_thread.start()
+
     def define_routes(self):
         @self.app.route('/')
         def video_feed():
             return Response(self.video_stream.generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-        @self.app.route('/restart', methods=['POST'])
-        def restart_server():
-
-            """Restarts the current program, with file objects and descriptors
-               cleanup
-            """
-            try:
-                p = psutil.Process(os.getpid())
-                for handler in p.open_files() + p.connections():
-                    os.close(handler.fd)
-            except Exception as e:
-                logging.error(e)
-
-            python = sys.executable
-            os.execl(python, python, *sys.argv)
-
-            return "Server wird neu gestartet", 200
-
     def run(self):
         self.app.run(
             host='0.0.0.0',
-            port=5000,  # Geändert zu 'video_stream_port'
+            port=5001,  # Geändert zu 'video_stream_port'
             threaded=True,
             use_reloader=False
         )
 
 
 def main():
-    config_path = os.path.join('/data', 'config.json')
+    config_path = os.path.join('data', 'config.json')
     config_manager = ConfigManager(config_path)
 
     video_stream_server = VideoStreamServer(config_manager)

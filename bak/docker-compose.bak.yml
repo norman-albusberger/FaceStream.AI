@@ -3,10 +3,10 @@ version: '3.8'
 services:
   videostream:
     build:
-      context: .
+      context: ..
       dockerfile: dockerfile.videostream
     ports:
-      - "${VIDEOSTREAM_PORT}:5000"  # Umgebungsvariable für den Host-Port
+      - "8000:5000"  # Umgebungsvariable für den Host-Port
     volumes:
       - ./data:/data  # Mount the local 'data' directory to '/data' in the container
       - ./app:/app
@@ -15,10 +15,10 @@ services:
 
   configserver:
     build:
-      context: .
+      context: ..
       dockerfile: dockerfile.configserver
     ports:
-      - "${CONFIGSERVER_PORT}:5000"  # Umgebungsvariable für den Host-Port
+      - "8080:5000"  # Umgebungsvariable für den Host-Port
     volumes:
       - ./data:/data  # Mount the local 'data' directory to '/data' in the container
       - ./app:/app
