@@ -7,11 +7,52 @@ from config.manager import ConfigManager
 from werkzeug.utils import secure_filename
 import json
 import requests
+import re
+from urllib.parse import urlparse
 
 
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def validate_int(value, default, min_value=None, max_value=None):
+    try:
+        value = int(value)
+        if (min_value is not None and value < min_value) or (max_value is not None and value > max_value):
+            return default
+        return value
+    except (ValueError, TypeError):
+        return default
+
+
+def validate_bool(value, default):
+    print(value)
+    if str(value).lower() in ['true', '1', 't', 'y', 'yes']:
+        return True
+    elif str(value).lower() in ['false', '0', 'f', 'n', 'no']:
+        return False
+    else:
+        return default
+
+
+# Beispiel für eine Funktion zur Validierung von Hex-Farben
+def validate_hex_color(value, default):
+    if value and re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', value):
+        return value
+    else:
+        return default
+
+
+# Beispiel für eine Funktion zur Validierung von URLs
+def validate_url(value, default):
+    try:
+        result = urlparse(value)
+        if all([result.scheme, result.netloc]):
+            return value
+    except:
+        pass
+    return default
 
 
 def initialize_app_structure():
@@ -21,11 +62,16 @@ def initialize_app_structure():
     default_config = {
         # Hier Ihre Standardkonfigurationswerte einfügen
         'input_stream_url': '...',
-        'notification_service_url': '',
         'overlay_color': [220, 220, 200],
         'overlay_transparency': 0.5,
         'output_width': 640,
-        'output_height': 480
+        'output_height': 480,
+        'enable_notification_service': False,
+        'notification_service_address': '',
+        'notification_service_port': None,
+        'notification_period': 60,
+        'face_recognition_interval': 60
+
     }
 
     # Erstellen des 'data'-Ordners, falls nicht vorhanden
@@ -62,6 +108,7 @@ class ConfigServer:
 
         @self.app.route('/', methods=['GET', 'POST'])
         def index():
+            print(self.config_manager.config)
             hex_color = self.config_manager.rgb_to_hex(self.config_manager.get('overlay_color'))
             transparency_value = self.config_manager.get('overlay_transparency') * 100
             rgba_overlay = self.config_manager.get_rgba_overlay()
@@ -69,12 +116,19 @@ class ConfigServer:
             faces = os.listdir(UPLOAD_FOLDER)
             if request.method == 'POST':
                 new_config = {
-                    'input_stream_url': request.form.get('input_stream_url'),
-                    'notification_service_url': request.form.get('notification_service_url'),
-                    'overlay_transparency': overlay_transparency,
+                    'input_stream_url': validate_url(request.form.get('input_stream_url'), ''),
+                    'notification_service_address': validate_url(request.form.get('notification_service_address'),
+                                                                 ''),
+                    'overlay_transparency': validate_int(request.form.get('overlay_transparency'), 0, 0, 100) / 100.0,
                     'overlay_color': self.config_manager.hex_to_rgb(request.form.get('overlay_color')),
-                    'output_width': int(request.form.get('output_width')),
-                    'output_height': int(request.form.get('output_height')),
+                    'output_width': validate_int(request.form.get('output_width'), 640, 100, 4000),
+                    'output_height': validate_int(request.form.get('output_height'), 480, 100, 4000),
+                    'notification_service_port': validate_int(request.form.get('notification_service_port'), 8080, 1,
+                                                              65535),
+                    'enable_notification_service': validate_bool(request.form.get('enable_notification_service'),
+                                                                 False),
+                    'notification_period': validate_int(request.form.get('notification_period'), 60, 1),
+                    'face_recognition_interval': validate_int(request.form.get('face_recognition_interval'), 60, 2, 60)
                 }
                 self.config_manager.config = new_config
                 self.config_manager.save_config()
@@ -152,7 +206,8 @@ class ConfigServer:
             host='0.0.0.0',  # interner server jeder Adresse des hosts aus erreichbar
             port=5000,  # Einstellung für den Port des Konfigurationsservers
             threaded=True,
-            use_reloader=False
+            use_reloader=False,
+            debug=True
         )
 
 

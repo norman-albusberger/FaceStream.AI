@@ -24,14 +24,7 @@ class VideoStreamServer:
     def __init__(self, config_manager):
         self.app = Flask(__name__)
         self.config_manager = config_manager
-        self.video_stream = VideoStream(
-            input_stream_url=self.config_manager.get('input_stream_url'),
-            overlay_color=config_manager.get('overlay_color', [220, 220, 200]),
-            overlay_transparency=self.config_manager.get('overlay_transparency', 0.5),
-            output_width=self.config_manager.get('output_width'),
-            output_height=self.config_manager.get('output_height'),
-            face_loader=FaceLoader()
-        )
+        self.video_stream = VideoStream(config_manager=config_manager, face_loader=FaceLoader())
         self.define_routes()
 
         signal_file_path = 'data/signal_file'  # Pfad zur Signaldatei für neustart
