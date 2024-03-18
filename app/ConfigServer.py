@@ -36,7 +36,7 @@ def validate_bool(value, default):
         return default
 
 
-# Beispiel für eine Funktion zur Validierung von Hex-Farben
+# Funktion zur Validierung von Hex-Farben
 def validate_hex_color(value, default):
     if value and re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', value):
         return value
@@ -44,7 +44,7 @@ def validate_hex_color(value, default):
         return default
 
 
-# Beispiel für eine Funktion zur Validierung von URLs
+# Funktion zur Validierung von URLs
 def validate_url(value, default):
     try:
         result = urlparse(value)
@@ -180,10 +180,9 @@ class ConfigServer:
                     os.remove(file_path)
                     return redirect(url_for('index'))
                 except Exception as e:
-                    # Im Fehlerfall eine Fehlermeldung zurückgeben
                     return jsonify({'error': f'Fehler beim Löschen von {filename}: {str(e)}'}), 500
             else:
-                # Wenn die Datei nicht gefunden wurde, eine entsprechende Nachricht zurückgeben
+                # Wenn die Datei nicht gefunden wurde
                 return jsonify({'error': f'Bild {filename} nicht gefunden'}), 404
 
         @self.app.route('/list-faces')
