@@ -2,6 +2,8 @@
 
 import os
 from flask import Flask, Response
+
+from notification.service import NotificationService
 from config.manager import ConfigManager
 from stream.video import VideoStream
 import threading
@@ -21,10 +23,14 @@ def check_for_restart_signal(signal_file_path, interval=10):
 
 
 class VideoStreamServer:
-    def __init__(self, config_manager):
+    def __init__(self, config_manager, notification_service):
         self.app = Flask(__name__)
         self.config_manager = config_manager
-        self.video_stream = VideoStream(config_manager=config_manager, face_loader=FaceLoader())
+        self.video_stream = VideoStream(
+            config_manager=config_manager,
+            face_loader=FaceLoader(),
+            notification_service=notification_service
+        )
         self.define_routes()
 
         signal_file_path = 'data/signal_file'  # Pfad zur Signaldatei für neustart
@@ -50,7 +56,13 @@ def main():
     config_path = os.path.join('data', 'config.json')
     config_manager = ConfigManager(config_path)
 
-    video_stream_server = VideoStreamServer(config_manager)
+    notification_service = NotificationService(
+        config_manager.get('notification_service_address'),
+        config_manager.get('notification_service_port'),
+        config_manager.get('notification_period')
+    )
+
+    video_stream_server = VideoStreamServer(config_manager, notification_service)
     video_stream_server.run()
 
 
