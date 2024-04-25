@@ -32,18 +32,25 @@ class ConfigManager:
         self.save_config()
 
     def hex_to_rgb(self, hex_color):
-        """Konvertiert einen Hex-Farbwert in ein RGB-Tupel."""
+        """Converts a Hex color value to an RGB tuple."""
         hex_color = hex_color.lstrip('#')
-        return tuple(int(hex_color[i:i + 2], 16) for i in (0, 2, 4))
+        if len(hex_color) == 3:  # Handles shorthand like #FFF
+            hex_color = ''.join([c * 2 for c in hex_color])
+        try:
+            return tuple(int(hex_color[i:i + 2], 16) for i in (0, 2, 4))
+        except ValueError:
+            raise ValueError("Invalid hex color format")
 
     def rgb_to_hex(self, rgb_color):
         """Konvertiert ein RGB-Tupel in einen Hex-Farbwert."""
         return '#{:02x}{:02x}{:02x}'.format(*rgb_color)
 
     def get_rgba_overlay(self):
-
-        """Berechnet den RGBA-Wert für das Overlay basierend auf der Overlay-Farbe in der Konfiguration."""
-        rgb_color = self.get('overlay_color', [220,220,200])  # Standardfarbe, falls keine angegeben ist
-        alpha = 1-self.get('overlay_transparency', 0.5)
-        rgba_color = 'rgba({}, {}, {}, {})'.format(*rgb_color, alpha)
-        return rgba_color
+        """Calculates the RGBA value for the overlay based on the overlay color in the configuration."""
+        try:
+            rgb_color = self.get('overlay_color', [220, 220, 200])  # Default color if none specified
+            alpha = 1 - self.get('overlay_transparency', 0.5)
+            rgba_color = 'rgba({}, {}, {}, {})'.format(*rgb_color, alpha)
+            return rgba_color
+        except Exception as e:
+            raise ValueError("Error calculating RGBA overlay: {}".format(e))

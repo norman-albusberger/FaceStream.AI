@@ -188,16 +188,18 @@ class ConfigServer:
         @self.app.route('/list-faces')
         def list_faces():
             faces = os.listdir(UPLOAD_FOLDER)
+            print(faces)
 
             return render_template('_face_list.html', faces=faces)
 
         @self.app.route('/knownfaces/<filename>')
         def knownfaces(filename):
-            print("hallo")
-            print(filename)
+            # Simple security measure to prevent path traversal
+            if '..' in filename or filename.startswith('/'):
+                return "Access denied", 403
+
             BASE_DIR = os.path.dirname(os.path.abspath(__file__))
             uploadfolder = os.path.join(BASE_DIR, UPLOAD_FOLDER)
-
             return send_from_directory(uploadfolder, filename)
 
     def run(self):

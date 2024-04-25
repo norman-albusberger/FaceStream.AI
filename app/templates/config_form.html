@@ -21,14 +21,14 @@
     <div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
 
         <form method="post">
-            <div class="row">
+            <div class="row mt-3">
                 <div class="col-6">
                     <label for="inputStreamURL" class="form-label">Input Stream URL</label>
                     <input type="text" class="form-control" id="inputStreamURL" name="input_stream_url"
                            value="{{ config.input_stream_url }}" required>
                 </div>
             </div>
-            <div class="row">
+            <div class="row mt-3">
                 <div class="col-6">
                     <label for="outputWidth" class="form-label">Output Width</label>
                     <input type="number" class="form-control" id="outputWidth" name="output_width"
@@ -40,40 +40,43 @@
                     <input type="number" class="form-control" id="outputHeight" name="output_height"
                            value="{{ config.output_height }}" required>
                 </div>
+                 <!-- Standardgrößen Buttons -->
+            <div class="row mt-3">
+                <div class="col">
+                    <button type="button" class="btn btn-info" onclick="setSize(800, 600)">Small (SVGA
+                        800x600)
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="setSize(1024, 768)"> Medium (XGA 1024x768)
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="setSize(1280, 1024)">Large (SXGA
+                        1280x1024)
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="setSize(1600, 1200)">Extra Large (UXGA
+                        1600x1200)
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="setSize(2048, 1536)">Ultra Large (QXGA
+                        2048x1536)
+                    </button>
+
+                </div>
 
             </div>
-            <div class="row">
+            <div class="row mt-5">
                 <div class="col-6">
                     <label class="form-label" for="faceRecognitionInterval">Interval für die Gesichtserkennung</label>
                     <input type="range" class="form-range" id="faceRecognitionInterval"
-                           name="face_recognition_interval" min="2" max="60"
+                           name="face_recognition_interval" min="2" max="300"
                            value="{{ config.face_recognition_interval }}"
                            oninput="updateFaceRecognitionIntervalValue(this.value)">
 
-                    <small> Alle <span id="faceRecognitionIntervalValue">{{ config.face_recognition_interval }}</span></small>
-                        Bilder
+                    <small> Alle <span
+                            id="faceRecognitionIntervalValue">{{ config.face_recognition_interval }}</span></small>
+                    Bilder
                 </div>
             </div>
 
             <!-- Weitere Formularelemente und Submit-Button ... -->
-            <!-- Standardgrößen Buttons -->
-            <div class="row mt-3">
-                <div class="col">
-                    <button type="button" class="btn btn-info" onclick="setSize(176, 144)">Very Small (QCIF
-                        176x144)
-                    </button>
-                    <button type="button" class="btn btn-info" onclick="setSize(320, 240)">Small (QVGA
-                        320x240)
-                    </button>
-                    <button type="button" class="btn btn-info" onclick="setSize(352, 288)">Medium (CIF 352x288)
-                    </button>
-                    <button type="button" class="btn btn-info" onclick="setSize(800, 600)">Large (SVGA
-                        800x600)
-                    </button>
-                    <button type="button" class="btn btn-info" onclick="setSize(1024, 768)">Very Large (XGA
-                        1024x768)
-                    </button>
-                </div>
+
             </div>
             <div class="mt-3 mb-3 form-check">
                 <input type="checkbox" class="form-check-input" id="enableNotificationService"

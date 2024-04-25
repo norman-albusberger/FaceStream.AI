@@ -32,11 +32,13 @@ class VideoStream:
     def draw_rectangle_with_name(self, frame, top, right, bottom, left, name):
         try:
             transparency = self.overlay_transparency
+            overlay_color = self.overlay_color[::-1]  # Convert RGB to BGR if stored as RGB in config
+
             overlay = frame.copy()
-            cv2.rectangle(overlay, (left, top), (right, bottom), self.overlay_color, -1)  # Fills the rectangle
+            cv2.rectangle(overlay, (left, top), (right, bottom), overlay_color, -1)  # Fills the rectangle
 
             # Safely attempt to blend the overlay with the original frame
-            blended_frame = cv2.addWeighted(overlay, transparency, frame, 1 - transparency, 0)
+            blended_frame = cv2.addWeighted(overlay, 1 - transparency, frame, transparency, 0)
 
             # Apply the blended frame back to the original frame reference
             frame[:, :] = blended_frame

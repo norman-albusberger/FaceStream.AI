@@ -4,6 +4,8 @@ FROM python:3.8-slim-buster AS builder
 # Installieren der notwendigen Systempakete und Build-Tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    python3-dev \
+    python3-numpy \
     cmake \
     gfortran \
     libsm6 \
@@ -11,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxrender-dev \
     git \
     wget \
-
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Erstellen eines virtuellen Python-Umgebungsverzeichnisses
@@ -19,15 +21,15 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Manuelle Installation von dlib
-RUN pip install --upgrade pip && \
+# Install Dlib
+ENV CFLAGS=-static
+RUN pip3 install --upgrade pip && \
     git clone -b 'v19.21' --single-branch https://github.com/davisking/dlib.git && \
     cd dlib/ && \
     python3 setup.py install --set BUILD_SHARED_LIBS=OFF
 
 # Installieren von face_recognition und anderen benötigten Paketen
-RUN pip install face_recognition opencv-contrib-python-headless flask flask-requests requests psutil
-
+RUN pip3 install face_recognition opencv-contrib-python-headless flask flask-requests requests psutil
 
 # Zweite Stufe: Runtime-Image
 FROM python:3.8-slim-buster AS runtime
@@ -44,6 +46,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxext6 \
     libxrender1 \
     supervisor \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Arbeitsverzeichnis festlegen
