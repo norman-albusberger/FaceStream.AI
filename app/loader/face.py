@@ -29,6 +29,6 @@ class FaceLoader:
         distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
         if len(distances) > 0:  # Correct way to check if the distances array is not empty
             best_match_index = np.argmin(distances)
-            if distances[best_match_index] < 0.6:  # Example threshold, adjust based on your accuracy needs
+            if distances[best_match_index] < 0.5:  # Example threshold, adjust based on your accuracy needs
                 return self.known_face_names[best_match_index]
         return "Unknown"

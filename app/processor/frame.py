@@ -73,6 +73,9 @@ class FrameProcessor(threading.Thread):
         face_locations = face_recognition.face_locations(rgb_small_frame)
         face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
 
+        # Create a copy of the original frame to draw on
+        marked_frame = frame.copy()
+
         for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
             name = self.face_loader.get_name(face_encoding)
             # Initialize a new tracker for each face
@@ -85,8 +88,8 @@ class FrameProcessor(threading.Thread):
 
             # Draw rectangles and notify
             name = self.face_loader.get_name(face_encoding)  # Assuming a method to get name
-            self.notification_service.notify(name)
-            frame = self.draw_rectangle_with_name(frame, top, right, bottom, left, name)
+            marked_frame = self.draw_rectangle_with_name(marked_frame, top, right, bottom, left, name)
+            self.notification_service.notify(name, marked_frame)
 
             processing_time = time.time() - start_time
             logging.debug(f"Frame verarbeitet in {processing_time:.2f} Sekunden")

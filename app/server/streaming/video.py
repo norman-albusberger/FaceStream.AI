@@ -57,32 +57,21 @@ class VideoStreamingServer:
 
     def start_stream(self):
         def generate():
+            last_time = time.time()
             while True:
                 try:
-                    # Blockiert, bis ein Frame verfügbar ist oder ein Timeout erreicht ist
                     frame = self.frame_queue.get(timeout=1)
-
-                    # Verwerfe alle älteren Frames, die sich noch in der Queue befinden
-                    while not self.frame_queue.empty():
-                        try:
-                            # Versuche, den nächsten Frame zu holen, falls verfügbar
-                            frame = self.frame_queue.get_nowait()
-                        except queue.Empty:
-                            break
-
-                    if frame is None or frame.size == 0:
-                        logging.error("Leeres oder ungültiges Frame erhalten")
-                        continue
-
+                    current_time = time.time()
                     _, jpeg = cv2.imencode('.jpg', frame)
-                    if jpeg is None:
-                        logging.error("Fehler beim Kodieren des Frames")
-                        continue
-
                     frame_data = jpeg.tobytes()
                     yield (b'--frame\r\n'
                            b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n')
-                    # Die Wartezeit wird entfernt, da wir stets das neueste Frame so schnell wie möglich senden wollen
+
+                    # Zeitdifferenz berechnen und entsprechend warten
+                    elapsed = time.time() - current_time
+                    sleep_time = max(0, (1.0 / 30) - elapsed)  # Sorge für 30 FPS
+                    time.sleep(sleep_time)
+                    last_time = current_time
                 except queue.Empty:
                     logging.debug("Warte auf Frames...")
                 except Exception as e:

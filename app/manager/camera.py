@@ -3,6 +3,7 @@ import threading
 import logging
 from queue import Full
 import time
+import queue
 
 
 class CameraManager(threading.Thread):
@@ -39,21 +40,25 @@ class CameraManager(threading.Thread):
                 ret, frame = self.capture.read()
                 if ret:
                     resized_frame = cv2.resize(frame, self.output_size)
-                    try:
-                        self.frame_queue.put(resized_frame,
-                                             timeout=0.05)
-
-                    except Full:
-                        logging.error("Frame queue ist voll. Ältere Frames werden verworfen.")
+                    while True:
+                        try:
+                            self.frame_queue.put(resized_frame, timeout=0.05)
+                            break  # Frame erfolgreich hinzugefügt, Schleife verlassen
+                        except queue.Full:
+                            try:
+                                # Versuche, den ältesten Frame zu entfernen, um Platz zu schaffen
+                                self.frame_queue.get_nowait()
+                                logging.warning("Frame queue ist voll. Ältester Frame wurde verworfen.")
+                            except queue.Empty:
+                                # Sollte normalerweise nicht passieren, da wir wissen, dass die Queue voll ist
+                                logging.error("Versuch, aus leerer Queue zu lesen. Das sollte nicht passieren.")
                 else:
                     logging.error("Kein Frame empfangen, Kamera neu verbinden.")
                     self.close_camera()
                     self.open_camera()
             else:
-                logging.warning("Warnung: Kamera konnte kein Frame erfassen")
-        else:
-            logging.error("Kamera ist nicht geöffnet. Versuch, die Kamera neu zu öffnen")
-            self.open_camera()
+                logging.error("Kamera ist nicht geöffnet. Versuch, die Kamera neu zu öffnen.")
+                self.open_camera()
 
     def stop(self):
         self.running = False
