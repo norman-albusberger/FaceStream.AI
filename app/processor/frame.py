@@ -25,7 +25,7 @@ class FrameProcessor(threading.Thread):
     def run(self):
         while self.running:
             try:
-                frame = self.frame_queue.get(timeout=1)
+                frame = self.frame_queue.get()
                 if frame is not None:
                     if self.frame_count % self.face_recognition_interval == 0:
                         processed_frame = self.process_frame(frame)
@@ -125,7 +125,8 @@ class FrameProcessor(threading.Thread):
             cv2.rectangle(frame, (left - border_thickness, top - border_thickness),
                           (right + border_thickness, bottom + border_thickness), border_color, border_thickness)
             blended_frame = cv2.addWeighted(overlay, 1 - transparency, frame, transparency, 0)
-            cv2.putText(blended_frame, name, (left, bottom + border_thickness + 25), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255),
+            cv2.putText(blended_frame, name, (left, bottom + border_thickness + 25), cv2.FONT_HERSHEY_SIMPLEX,
+                        font_scale, (255, 255, 255),
                         font_thickness)
         except Exception as e:
             print(f"Failed to draw rectangle with name: {e}")

@@ -37,8 +37,7 @@ class VideoStreamingServer:
         @self.app.route('/stream')
         def video_feed():
             with self.client_lock:
-                if self.active_clients == 0:
-                    generator = self.start_stream()
+                generator = self.start_stream()
                 self.active_clients += 1
 
             def stream():
