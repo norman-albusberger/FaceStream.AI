@@ -112,16 +112,20 @@ class FrameProcessor(threading.Thread):
 
     def draw_rectangle_with_name(self, frame, top, right, bottom, left, name):
         try:
+            border_color = (255, 255, 255)  # Weiß
+            border_thickness = 1  # Stärke der weißen Border
+            rectangle_thickness = -1  # Füllt das Rechteck
             transparency = self.overlay_transparency
             overlay_color = self.overlay_color[::-1]
             overlay = frame.copy()
-            cv2.rectangle(overlay, (left, top), (right, bottom), overlay_color, -1)
+            cv2.rectangle(overlay, (left, top), (right, bottom), overlay_color, rectangle_thickness)
             # Hier wird die Schriftgröße angepasst
             font_scale = 1.0  # Erhöhe diesen Wert, um die Schriftgröße zu vergrößern
             font_thickness = 2  # die Schriftstärke anpassen, falls nötig
-
+            cv2.rectangle(frame, (left - border_thickness, top - border_thickness),
+                          (right + border_thickness, bottom + border_thickness), border_color, border_thickness)
             blended_frame = cv2.addWeighted(overlay, 1 - transparency, frame, transparency, 0)
-            cv2.putText(blended_frame, name, (left, bottom + 20), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255),
+            cv2.putText(blended_frame, name, (left, bottom + border_thickness + 25), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255),
                         font_thickness)
         except Exception as e:
             print(f"Failed to draw rectangle with name: {e}")
