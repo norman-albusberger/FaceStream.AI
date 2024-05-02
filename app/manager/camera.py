@@ -26,10 +26,10 @@ class CameraManager(threading.Thread):
                 if ret:
                     resized_frame = cv2.resize(frame, self.output_size)
                     try:
-                        self.frame_queue.put_nowait(frame)
+                        self.frame_queue.put(resized_frame,
+                                             timeout=0.5)
                     except Full:
-                        self.frame_queue.get_nowait()  # Älteren Frame verwerfen, um Platz zu schaffen
-                        self.frame_queue.put_nowait(frame)  # Neuen Frame einreihen
+                        logging.error("Frame queue ist voll. Ältere Frames werden verworfen.")
                 else:
                     logging.warning("Warnung: Kamera konnte kein Frame erfassen")
             else:

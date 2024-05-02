@@ -35,9 +35,15 @@ class FrameProcessor(threading.Thread):
                     try:
                         self.processed_frame_queue.put_nowait(processed_frame)
                     except queue.Full:
-                        # Feedback-Mechanismus aktivieren oder Frame verwerfen
-                        logging.warning("Processed frame queue is full, dropping frame.")
-                        continue
+                        # Leere die Queue, wenn sie voll ist
+                        while not self.processed_frame_queue.empty():
+                            try:
+                                self.processed_frame_queue.get_nowait()
+                            except queue.Empty:
+                                break
+                        logging.warning("Processed frame queue was full and has been cleared.")
+                        self.processed_frame_queue.put_nowait(
+                            processed_frame)  # Versuche, den aktuellen Frame erneut hinzuzufügen
 
                 self.frame_count += 1
                 if self.frame_count % 100 == 0:

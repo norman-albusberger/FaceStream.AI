@@ -43,7 +43,7 @@ class VideoStreamingServer:
 
             def stream():
                 try:
-                    logging.debug("stream gestartet")
+                    logging.info("stream gestartet")
                     for frame_chunk in generator:
                         yield frame_chunk
                 except Exception as e:
@@ -92,7 +92,7 @@ class VideoStreamingServer:
         return generate()
 
     def stop_stream(self):
-        logging.debug("stream gestoppt")
+        logging.info("stream gestoppt")
 
     def run(self):
         self.app.run(host='0.0.0.0', port=5001, threaded=True, use_reloader=False)
