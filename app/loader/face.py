@@ -1,5 +1,4 @@
 import os
-from config.manager import ConfigManager
 import face_recognition
 import numpy as np
 
@@ -7,8 +6,6 @@ import numpy as np
 class FaceLoader:
     def __init__(self):
         img_dir = os.path.join('data', 'knownfaces')
-        print("test")
-        print(img_dir)
         self.known_face_encodings = []
         self.known_face_names = []
         self.load_known_faces(img_dir)

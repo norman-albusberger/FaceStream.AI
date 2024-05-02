@@ -3,6 +3,7 @@ const transparencySlider = document.getElementById('overlayTransparency');
 const colorOverlay = document.getElementById('colorOverlay');
 
 
+
 function updateOverlay() {
     const color = colorPicker.value;
     const transparency = transparencySlider.value / 100;
@@ -64,6 +65,15 @@ function updateFaceRecognitionIntervalValue(value) {
 
 // Sorgt dafür, dass die Einstellungen sichtbar bleiben, wenn die Seite neu geladen wird und die Checkbox aktiviert ist
 document.addEventListener("DOMContentLoaded", function() {
+//form submit
+document.getElementById('submitFormButton').addEventListener('click', function() {
+    var form = document.querySelector('form[method="post"]');
+    // Stellen Sie sicher, dass dies auf Ihr Formular zeigt
+    form.submit();  // Formular programmatisch absenden
+    this.disabled = true; //disable button
+    this.classList.add('disabled');
+});
+
     toggleNotificationServiceSettings();
 
      // Funktion zur Validierung der Formulardaten

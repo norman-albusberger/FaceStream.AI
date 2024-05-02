@@ -6,10 +6,10 @@
         .colorOverlayContainer{
 
          position: absolute;
-            top: 40px;
-            left: 70px;
-            width: 70%;
-            height: 80%;
+            top: 95px;
+            left: 95px;
+            width: 50%;
+            height: 50%;
         }
         .overlay {
  width: 100%;
@@ -21,11 +21,10 @@
 
  }
 
-        .dropzone-container {
+ .dropzone-container {
   border: 2px dashed #0087F7;
-  border-radius: 5px;
+  border-radius: 12px;
   width: 100%;
-  padding: 50px;
   text-align: center;
   transition: border .3s ease-in-out;
 }

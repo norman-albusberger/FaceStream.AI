@@ -1,6 +1,0 @@
-POST http://localhost:8000/restart
-Content-Type: application/json
-
-{
-  "key": "value"
-}

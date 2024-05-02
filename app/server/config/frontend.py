@@ -1,14 +1,12 @@
-# config_server.py
-UPLOAD_FOLDER = 'data/knownfaces'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 import os
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
-from config.manager import ConfigManager
 from werkzeug.utils import secure_filename
 import json
-import requests
 import re
 from urllib.parse import urlparse
+
+UPLOAD_FOLDER = 'data/knownfaces'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 
 def allowed_file(filename):
@@ -55,40 +53,7 @@ def validate_url(value, default):
     return default
 
 
-def initialize_app_structure():
-    data_folder = 'data'
-    known_faces_folder = os.path.join(data_folder, 'knownfaces')
-    config_file = os.path.join(data_folder, 'config.json')
-    default_config = {
-        # Hier Ihre Standardkonfigurationswerte einfügen
-        'input_stream_url': '...',
-        'overlay_color': [220, 220, 200],
-        'overlay_transparency': 0.5,
-        'output_width': 640,
-        'output_height': 480,
-        'enable_notification_service': False,
-        'notification_service_address': '',
-        'notification_service_port': None,
-        'notification_period': 60,
-        'face_recognition_interval': 60
-
-    }
-
-    # Erstellen des 'data'-Ordners, falls nicht vorhanden
-    if not os.path.exists(data_folder):
-        os.makedirs(data_folder)
-
-    # Erstellen des 'knownfaces'-Ordners, falls nicht vorhanden
-    if not os.path.exists(known_faces_folder):
-        os.makedirs(known_faces_folder)
-
-    # Erstellen der 'config.json'-Datei mit Standardwerten, falls nicht vorhanden
-    if not os.path.isfile(config_file):
-        with open(config_file, 'w') as config_file_handle:
-            json.dump(default_config, config_file_handle, indent=4)
-
-
-class ConfigServer:
+class ConfigFrontend:
     def __init__(self, config_manager):
         self.app = Flask(__name__)
         self.config_manager = config_manager
@@ -121,6 +86,7 @@ class ConfigServer:
                                                                  ''),
                     'overlay_transparency': validate_int(request.form.get('overlay_transparency'), 0, 0, 100) / 100.0,
                     'overlay_color': self.config_manager.hex_to_rgb(request.form.get('overlay_color')),
+                    'overlay_border': validate_int(request.form.get('overlay_border'), 1, 1, 4),
                     'output_width': validate_int(request.form.get('output_width'), 640, 100, 4000),
                     'output_height': validate_int(request.form.get('output_height'), 480, 100, 4000),
                     'notification_service_port': validate_int(request.form.get('notification_service_port'), 8080, 1,
@@ -128,7 +94,8 @@ class ConfigServer:
                     'enable_notification_service': validate_bool(request.form.get('enable_notification_service'),
                                                                  False),
                     'notification_period': validate_int(request.form.get('notification_period'), 60, 1),
-                    'face_recognition_interval': validate_int(request.form.get('face_recognition_interval'), 60, 2, 60)
+                    'face_recognition_interval': validate_int(request.form.get('face_recognition_interval'), 60, 2, 300)
+
                 }
                 self.config_manager.config = new_config
                 self.config_manager.save_config()
@@ -210,17 +177,3 @@ class ConfigServer:
             use_reloader=False,
             debug=True
         )
-
-
-def main():
-    # Initialisieren der Anwendungsstruktur
-    initialize_app_structure()
-    config_path = os.path.join('data', 'config.json')
-    config_manager = ConfigManager(config_path)
-
-    config_server = ConfigServer(config_manager)
-    config_server.run()
-
-
-if __name__ == '__main__':
-    main()
