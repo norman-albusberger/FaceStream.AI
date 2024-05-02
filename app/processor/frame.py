@@ -21,6 +21,7 @@ class FrameProcessor(threading.Thread):
         self.trackers = []
         self.notification_service = notification_service
         self.frame_count = 0  # Zähler für die Frame-Intervalle
+        self.scale_factor = 0.5
 
     def run(self):
         while self.running:
@@ -62,7 +63,7 @@ class FrameProcessor(threading.Thread):
 
     def process_frame(self, frame):
         start_time = time.time()
-        small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+        small_frame = cv2.resize(frame, (0, 0), fx=self.scale_factor, fy=self.scale_factor)
         # Convert small frame to RGB from BGR, which OpenCV uses
         rgb_small_frame = small_frame[:, :, ::-1]
 
@@ -81,7 +82,12 @@ class FrameProcessor(threading.Thread):
             # Initialize a new tracker for each face
             tracker = cv2.TrackerKCF_create()
             # Convert face location from small frame scale to original scale
-            top, right, bottom, left = top * 4, right * 4, bottom * 4, left * 4
+            # Skalierung zurücksetzen
+            scale_multiplier = int(1 / self.scale_factor)
+            top, right, bottom, left = (top * scale_multiplier,
+                                        right * scale_multiplier,
+                                        bottom * scale_multiplier,
+                                        left * scale_multiplier)
             bbox = (left, top, right - left, bottom - top)
             tracker.init(frame, bbox)
             self.trackers.append({'tracker': tracker, 'name': name})
