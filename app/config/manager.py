@@ -1,6 +1,32 @@
 import json
 import os
 
+data_folder = '/data'
+known_faces_folder = os.path.join(data_folder, 'knownfaces')
+config_file = os.path.join(data_folder, 'config.json')
+
+
+def initialize_app_structure():
+    default_config = {
+        'input_stream_url': '',
+        'overlay_color': [220, 220, 200],
+        'overlay_transparency': 0.5,
+        'overlay_border': 1,
+        'output_width': 640,
+        'output_height': 480,
+        'notification_delay': 60,  # Zeit in Sekunden
+        'custom_message': '[[name]], spotted at [[time]] on [[date]]!',
+        'use_udp': False,
+        'use_web': False,
+        'web_service_url': '',
+        'udp_service_port': 0,
+        'udp_service_url': '',
+        'face_recognition_interval': 60,
+        'image_path': os.path.join('/data', 'saved_faces'),
+        'log_file': os.path.join('/data', 'event_log.json')
+    }
+    return default_config
+
 
 class ConfigManager:
     def __init__(self, filepath):

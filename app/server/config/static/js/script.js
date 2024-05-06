@@ -1,7 +1,33 @@
 const colorPicker = document.getElementById('colorPicker');
 const transparencySlider = document.getElementById('overlayTransparency');
 const colorOverlay = document.getElementById('colorOverlay');
+var table = new Tabulator("#eventlog-table", {
+    height: '600px',
+    layout: 'fitColumns',
+    columns: [
+        {title: "Name", field: "name", sorter: "string", width: 200},
+        {title: "Time", field: "timestamp", sorter: "timestamp"},
+        {title: "Image Path", field: "image_path"},
 
+    ],
+
+});
+
+function sendBaseUrlToServer() {
+    const baseUrl = window.location.origin;
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({baseUrl})
+    };
+
+    fetch('/api/setBaseUrl', requestOptions)
+        .then(response => response.json())
+        .then(data => console.log('Response:', data))
+        .catch(error => console.error('Error:', error));
+}
 
 
 function updateOverlay() {
@@ -12,21 +38,6 @@ function updateOverlay() {
 
 colorPicker.addEventListener('input', updateOverlay);
 transparencySlider.addEventListener('input', updateOverlay);
-
-
-
-// Dropzone-Konfiguration
-Dropzone.options.knownFacesDropzone = {
-    acceptedFiles: "image/jpeg,image/png,image/jpg",
-    maxFilesize: 12, // Max. Dateigröße in MB
-    dictInvalidFileType: "Ungültiges Dateiformat. Nur JPEG und PNG sind erlaubt.",
-
-    success: function (file, response) {
-        // Aktualisieren Sie die Liste der Gesichter
-        updateFacesList();
-    }
-}
-
 
 function updateFacesList() {
     fetch('/list-faces')
@@ -40,18 +51,10 @@ function updateFacesList() {
         });
 }
 
-
-
-function toggleNotificationServiceSettings() {
-    var checkBox = document.getElementById("enableNotificationService");
-    var settingsDiv = document.getElementById("notificationServiceSettings");
-
-    // Zeigt oder verbirgt die Notification Service Einstellungen basierend auf dem Checkbox-Status
-    if (checkBox.checked == true){
-        settingsDiv.style.display = "block";
-    } else {
-        settingsDiv.style.display = "none";
-    }
+function updateDelayDisplay(value) {
+    const minutes = Math.floor(value / 60);
+    const seconds = value % 60;
+    document.getElementById('notificationDelay').innerText = minutes > 0 ? `${minutes} minute(s) ${seconds} second(s)` : `${value} second(s)`;
 }
 
 function setSize(width, height) {
@@ -60,49 +63,88 @@ function setSize(width, height) {
 }
 
 function updateFaceRecognitionIntervalValue(value) {
-              document.getElementById('faceRecognitionIntervalValue').innerHTML = value;
-            }
+    document.getElementById('faceRecognitionIntervalValue').innerHTML = value;
+}
 
-// Sorgt dafür, dass die Einstellungen sichtbar bleiben, wenn die Seite neu geladen wird und die Checkbox aktiviert ist
-document.addEventListener("DOMContentLoaded", function() {
-//form submit
-document.getElementById('submitFormButton').addEventListener('click', function() {
-    var form = document.querySelector('form[method="post"]');
-    // Stellen Sie sicher, dass dies auf Ihr Formular zeigt
-    form.submit();  // Formular programmatisch absenden
-    this.disabled = true; //disable button
-    this.classList.add('disabled');
+document.addEventListener("DOMContentLoaded", function () {
+
+    sendBaseUrlToServer();
+    table.setData('/event_log');
+    table.on("rowSelectionChanged", function(data, rows){
+    document.getElementById("select-stats").innerHTML = data.length;
 });
 
-    toggleNotificationServiceSettings();
+//form submit
+    document.getElementById('submitFormButton').addEventListener('click', async function (event) {
+        event.preventDefault(); // Verhindere das normale Abschicken des Formulars
+        let self = this;
 
-     // Funktion zur Validierung der Formulardaten
-    function validateForm() {
-        var isEnabled = document.getElementById("enableNotificationService").checked;
-        if (isEnabled) {
-            var address = document.getElementById("notificationServiceAddress").value;
-            var port = document.getElementById("notificationServicePort").value;
-            var period = document.getElementById("notificationPeriod").value;
+        let settingsForm = document.getElementById('settings-form');
+        let notificationForm = document.getElementById('notification-form');
 
-            if (!address) {
-                alert("Bitte gib eine gültige Adresse ein.");
-                return false;
-            }
-            if (!port || port < 1 || port > 65535) {
-                alert("Bitte gib einen gültigen Port zwischen 1 und 65535 ein.");
-                return false;
-            }
-            if (!period || period < 1) {
-                alert("Bitte gib eine gültige Benachrichtigungsperiode ein.");
-                return false;
-            }
+        if (!settingsForm.checkValidity() || !notificationForm.checkValidity()) {
+            settingsForm.classList.add('was-validated');
+            notificationForm.classList.add('was-validated');
+            return; // Stoppe die Ausführung, wenn die Formulare ungültig sind
         }
-        return true; // Alles ist valide
+
+        let formData = new FormData(settingsForm);
+        new FormData(notificationForm).forEach((value, key) => formData.append(key, value));
+
+        this.disabled = true; // Deaktiviere den Button
+        this.classList.add('disabled');
+
+        try {
+            let response = await fetch(settingsForm.action, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                // Zeige das Modal an
+                let modal = new bootstrap.Modal(document.getElementById('successModal'));
+                modal.show();
+
+                // Starte den Countdown
+                let countdownElement = document.getElementById('countdown');
+                let timeLeft = 20; // Zeit in Sekunden
+
+                let timerId = setInterval(() => {
+                    timeLeft--;
+                    countdownElement.textContent = timeLeft;
+                    if (timeLeft <= 0) {
+                        clearInterval(timerId);
+                        window.location.reload(); // Seite neu laden
+                    }
+                }, 1000);
+            } else {
+                throw new Error('Server antwortete mit einem Fehler: ' + response.status);
+            }
+        } catch (error) {
+            console.error('Fehler beim Senden der Formulardaten', error);
+            alert('Ein Fehler ist aufgetreten: ' + error.message);
+        } finally {
+            setTimeout(() => {
+                self.disabled = false;
+                self.classList.remove('disabled');
+            }, 2000); // Wieder aktivieren nach 2 Sekunden
+        }
+    });
+
+
+    document.getElementById('overlayTransparency').oninput = function () {
+        document.getElementById('transparencyValue').innerText = this.value + '%';
+    };
+
+// Dropzone-Konfiguration
+    Dropzone.options.knownFacesDropzone = {
+        acceptedFiles: "image/jpeg,image/png,image/jpg",
+        maxFilesize: 12, // Max. Dateigröße in MB
+        dictInvalidFileType: "Ungültiges Dateiformat. Nur JPEG und PNG sind erlaubt.",
+
+        success: function (file, response) {
+            // Aktualisieren Sie die Liste der Gesichter
+            updateFacesList();
+        }
     }
-
-    // Validierung beim Absenden des Formulars hinzufügen
-    var form = document.querySelector("form"); // Annahme, dass es ein umgebendes <form>-Element gibt
-    form.onsubmit = validateForm;
-
-
 });

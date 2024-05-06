@@ -7,7 +7,7 @@ import queue
 
 
 class CameraManager(threading.Thread):
-    def __init__(self, frame_queue, camera_url, output_size=(640, 480), max_retries=5):
+    def __init__(self, frame_queue, camera_url, output_size=(640, 480), max_retries=15):
         super().__init__()
         self.camera_url = camera_url
         self.output_size = output_size
@@ -17,6 +17,9 @@ class CameraManager(threading.Thread):
         self.max_retries = max_retries  # Maximale Anzahl von Verbindungsversuchen
 
     def open_camera(self):
+        if not self.camera_url:  # Überprüfe, ob die Kamera-URL leer ist
+            logging.error("Keine Kamera-URL angegeben.")
+            raise ValueError("Keine Kamera-URL angegeben")
         attempt = 0
         while attempt < self.max_retries and not self.capture:
             self.capture = cv2.VideoCapture(self.camera_url)

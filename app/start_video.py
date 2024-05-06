@@ -14,22 +14,20 @@ logging.basicConfig(level=logging.INFO)
 
 def main():
     # Konfiguration laden
-    config_path = os.path.join('data', 'config.json')
+    config_path = os.path.join('/data', 'config.json')
     config_manager = ConfigManager(config_path)
     config_manager.load_config()
 
     # Warteschlange für frames
-    frame_queue = queue.Queue(maxsize=50)
-    processed_frame_queue = queue.Queue(maxsize=50)
+    frame_queue = queue.Queue(maxsize=500)
+    processed_frame_queue = queue.Queue(maxsize=500)
     output_size = (config_manager.get('output_width'), config_manager.get('output_height'))
     # Starten des Kamera Managers
     camera_manager = CameraManager(frame_queue, config_manager.get('input_stream_url'), output_size)
     camera_manager.start()
 
     # NotificationService
-    log_path = os.path.join('data', 'eventlog.csv')
-    image_save_path = os.path.join('data', 'saved_faces')
-    notification_service = NotificationService('0.0.0.0.0', 80, 60, image_save_path, log_path)
+    notification_service = NotificationService(config_manager)
 
     # Laden der bekannten Gesichter
     face_loader = FaceLoader()

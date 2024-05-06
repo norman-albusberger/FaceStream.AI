@@ -1,11 +1,12 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
-import json
 import re
 from urllib.parse import urlparse
+import logging
+import json
 
-UPLOAD_FOLDER = 'data/knownfaces'
+UPLOAD_FOLDER = '/data/knownfaces'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 
@@ -25,7 +26,7 @@ def validate_int(value, default, min_value=None, max_value=None):
 
 
 def validate_bool(value, default):
-    print(value)
+    logging.debug(value)
     if str(value).lower() in ['true', '1', 't', 'y', 'yes']:
         return True
     elif str(value).lower() in ['false', '0', 'f', 'n', 'no']:
@@ -53,6 +54,28 @@ def validate_url(value, default):
     return default
 
 
+def validate_port(value, default=''):
+    try:
+        port = int(value)
+        if 1 <= port <= 65535:
+            return port
+        else:
+            raise ValueError("Port number out of range")
+    except (ValueError, TypeError):
+        logging.error(f"Invalid port number provided: {value}, reverting to default: {default}")
+        return default
+
+
+def validate_float(value, default, min_value=0.0, max_value=1.0):
+    try:
+        value = float(value)
+        if value < min_value or value > max_value:
+            return default
+        return value
+    except (TypeError, ValueError):
+        return default
+
+
 class ConfigFrontend:
     def __init__(self, config_manager):
         self.app = Flask(__name__)
@@ -60,6 +83,15 @@ class ConfigFrontend:
         self.define_routes()
 
     def define_routes(self):
+
+        @self.app.route('/api/setBaseUrl', methods=['POST'])
+        def set_base_url():
+            data = request.get_json()
+            base_url = data['baseUrl']
+            # Setzen der Basis-URL im Konfigurationsmanager
+            self.config_manager.set('base_url', base_url)
+            self.config_manager.save_config()
+            return jsonify({'status': 'URL set successfully', 'baseUrl': base_url})
 
         @self.app.route('/test_path')
         def test_path():
@@ -75,33 +107,36 @@ class ConfigFrontend:
         def index():
             print(self.config_manager.config)
             hex_color = self.config_manager.rgb_to_hex(self.config_manager.get('overlay_color'))
-            transparency_value = self.config_manager.get('overlay_transparency') * 100
             rgba_overlay = self.config_manager.get_rgba_overlay()
-            overlay_transparency = float(request.form.get('overlay_transparency', 0)) / 100
+            transparency_value = int(round((self.config_manager.get('overlay_transparency')) * 100))
             faces = os.listdir(UPLOAD_FOLDER)
             if request.method == 'POST':
                 new_config = {
                     'input_stream_url': validate_url(request.form.get('input_stream_url'), ''),
-                    'notification_service_address': validate_url(request.form.get('notification_service_address'),
-                                                                 ''),
-                    'overlay_transparency': validate_int(request.form.get('overlay_transparency'), 0, 0, 100) / 100.0,
                     'overlay_color': self.config_manager.hex_to_rgb(request.form.get('overlay_color')),
+                    'overlay_transparency': validate_int(request.form.get('overlay_transparency'), 0, 0, 100) / 100,
                     'overlay_border': validate_int(request.form.get('overlay_border'), 1, 1, 4),
                     'output_width': validate_int(request.form.get('output_width'), 640, 100, 4000),
                     'output_height': validate_int(request.form.get('output_height'), 480, 100, 4000),
-                    'notification_service_port': validate_int(request.form.get('notification_service_port'), 8080, 1,
-                                                              65535),
-                    'enable_notification_service': validate_bool(request.form.get('enable_notification_service'),
-                                                                 False),
-                    'notification_period': validate_int(request.form.get('notification_period'), 60, 1),
-                    'face_recognition_interval': validate_int(request.form.get('face_recognition_interval'), 60, 2, 300)
-
+                    'custom_message': request.form.get('custom_message',
+                                                       '[[name]], spotted at [[time]] on [[date]]!').strip(),
+                    'use_udp': validate_bool(request.form.get('use_udp'), False),
+                    'use_web': validate_bool(
+                        request.form.get('use_web'), False),
+                    'web_service_url': validate_url(request.form.get('web_service_url'), ''),
+                    'udp_service_url': validate_url(request.form.get('udp_service_url'), ''),
+                    'udp_service_port': validate_port(request.form.get('udp_service_port')),
+                    'notification_delay': validate_int(request.form.get('notification_delay'), 60, 10, max_value=300),
+                    'face_recognition_interval': validate_int(request.form.get('face_recognition_interval'), 60, 2,
+                                                              max_value=300)
                 }
-                self.config_manager.config = new_config
+                combined = {**self.config_manager.config, **new_config}
+
+                self.config_manager.config = combined
                 self.config_manager.save_config()
 
                 # Neustart des Video-Stream Servers erforderlich, um Änderungen anzuwenden
-                with open('data/signal_file', 'w') as f:
+                with open('/data/signal_file', 'w') as f:
                     f.write("restart")
 
                 return render_template('config_saved.html')
@@ -152,6 +187,20 @@ class ConfigFrontend:
                 # Wenn die Datei nicht gefunden wurde
                 return jsonify({'error': f'Bild {filename} nicht gefunden'}), 404
 
+        @self.app.route('/event_log')
+        def show_log():
+            try:
+                log_file = self.config_manager.get('log_file')
+
+                # Öffnen der Datei und Erstellen eines JSON-Arrays
+                with open(log_file, 'r') as file:
+                    entries = [json.loads(line) for line in file if line.strip()]
+                return jsonify(entries)  # Gibt ein valides JSON-Array zurück
+
+            except Exception as e:
+                # Im Fehlerfall geben wir eine Fehlermeldung und den HTTP-Statuscode 500 zurück
+                return jsonify({'error': str(e)}), 500
+
         @self.app.route('/list-faces')
         def list_faces():
             faces = os.listdir(UPLOAD_FOLDER)
@@ -168,6 +217,16 @@ class ConfigFrontend:
             BASE_DIR = os.path.dirname(os.path.abspath(__file__))
             uploadfolder = os.path.join(BASE_DIR, UPLOAD_FOLDER)
             return send_from_directory(uploadfolder, filename)
+
+        @self.app.route('/event-image/<filename>')
+        def event(filename):
+            # Simple security measure to prevent path traversal
+            if '..' in filename or filename.startswith('/'):
+                return "Access denied", 403
+
+            BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+            image_path = os.path.join(BASE_DIR, self.config_manager.get('image_path'))
+            return send_from_directory(image_path, filename)
 
     def run(self):
         self.app.run(

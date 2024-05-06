@@ -1,20 +1,24 @@
+.image-container {
+    position: relative;
+    display: block; /* geändert von inline-block für bessere Responsive-Eigenschaften */
+    width: 100%; /* Damit es responsive ist */
+    max-width: 400px; /* Maximale Breite entsprechend deinem Design */
+}
 
-        .image-container {
-            position: relative;
-            display: inline-block;
-        }
-        .colorOverlayContainer{
+.colorOverlayContainer {
+    position: absolute;
+    top: 26%;  /* Beispielwert: Anpassen, um das Overlay richtig zu positionieren */
+    left: 27%; /* Beispielwert: Anpassen, um das Overlay richtig zu positionieren */
+    width: 44%; /* Prozentual zur Anpassung an das Bild */
+    height: 44%; /* Prozentual zur Anpassung an das Bild */
+    border: 1px solid white;
 
-         position: absolute;
-            top: 95px;
-            left: 95px;
-            width: 50%;
-            height: 50%;
-        }
-        .overlay {
- width: 100%;
-            height: 100%;
-        }
+}
+
+.overlay {
+    width: 100%;
+    height: 100%;
+}
 
  .dropzone{
  border:0 !important;

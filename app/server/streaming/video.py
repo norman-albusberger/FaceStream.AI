@@ -28,7 +28,7 @@ class VideoStreamingServer:
         self.last_request_time = time.time()
         self.active_clients = 0
         self.client_lock = threading.Lock()
-        signal_file_path = 'data/signal_file'
+        signal_file_path = '/data/signal_file'
         restart_thread = threading.Thread(target=check_for_restart_signal, args=(signal_file_path,))
         restart_thread.daemon = True
         restart_thread.start()

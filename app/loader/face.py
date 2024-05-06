@@ -5,7 +5,7 @@ import numpy as np
 
 class FaceLoader:
     def __init__(self):
-        img_dir = os.path.join('data', 'knownfaces')
+        img_dir = os.path.join('/data', 'knownfaces')
         self.known_face_encodings = []
         self.known_face_names = []
         self.load_known_faces(img_dir)
