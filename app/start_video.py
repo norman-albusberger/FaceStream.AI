@@ -8,8 +8,9 @@ from notification.service import NotificationService
 from manager.camera import CameraManager
 from config.manager import ConfigManager
 
+
 # Aktiviere Logging für bessere Fehlerbehebung
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.DEBUG)
 
 
 def main():

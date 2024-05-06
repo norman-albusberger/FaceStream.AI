@@ -5,6 +5,7 @@ import re
 from urllib.parse import urlparse
 import logging
 import json
+from flask import send_file
 
 UPLOAD_FOLDER = '/data/knownfaces'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -219,14 +220,36 @@ class ConfigFrontend:
             return send_from_directory(uploadfolder, filename)
 
         @self.app.route('/event-image/<filename>')
-        def event(filename):
-            # Simple security measure to prevent path traversal
+        def event_image(filename):
+            # Einfache Sicherheitsmaßnahme zur Verhinderung von Path Traversal
             if '..' in filename or filename.startswith('/'):
                 return "Access denied", 403
 
-            BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-            image_path = os.path.join(BASE_DIR, self.config_manager.get('image_path'))
-            return send_from_directory(image_path, filename)
+            # Bestimmung des Basisverzeichnisses
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            # Holen des Pfades aus der Konfiguration
+            image_path = os.path.join(base_dir, self.config_manager.get('image_path'))
+
+            try:
+                # Sicherstellen, dass der Pfad existiert und ein Verzeichnis ist
+                if not os.path.exists(image_path) or not os.path.isdir(image_path):
+                    raise FileNotFoundError("The specified image directory does not exist.")
+
+                # Senden der Datei aus dem angegebenen Verzeichnis
+                return send_from_directory(image_path, filename)
+            except FileNotFoundError as e:
+                # Fehlerbehandlung, falls der Pfad nicht existiert
+                return str(e), 404
+
+        @self.app.route('/last-event-image')
+        def last_event_image():
+            image_path = self.config_manager.get('image_path')
+            # Alle Dateien im Verzeichnis auflisten
+            files = [os.path.join(image_path, f) for f in os.listdir(image_path)]
+            # Die neueste Datei finden basierend auf der Erstellungszeit
+            latest_file = max(files, key=os.path.getctime)
+            # Die neueste Datei senden
+            return send_file(latest_file, mimetype='image/jpeg')  # Mimetype entsprechend anpassen
 
     def run(self):
         self.app.run(

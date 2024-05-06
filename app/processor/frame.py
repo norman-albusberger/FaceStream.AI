@@ -42,14 +42,14 @@ class FrameProcessor(threading.Thread):
                                 self.processed_frame_queue.get_nowait()
                             except queue.Empty:
                                 break
-                        logging.warning("Processed frame queue was full and has been cleared.")
+                        logging.debug("Processed frame queue was full and has been cleared.")
                         self.processed_frame_queue.put_nowait(
                             processed_frame)  # Versuche, den aktuellen Frame erneut hinzuzufügen
 
                 self.frame_count += 1
                 if self.frame_count % 100 == 0:
                     queue_size = self.frame_queue.qsize()
-                    logging.info(f"Aktuelle Queue-Größe: {queue_size}; verarbeitete Frames: {self.frame_count}")
+                    logging.debug(f"Aktuelle Queue-Größe: {queue_size}; verarbeitete Frames: {self.frame_count}")
 
                 # Zurücksetzen des frame_count, um Überlauf zu vermeiden
                 if self.frame_count >= 1000000:
@@ -115,7 +115,7 @@ class FrameProcessor(threading.Thread):
                 updated_frame = self.draw_rectangle_with_name(updated_frame, top, right, bottom, left, name)
                 new_trackers.append(tracked)
             else:
-                print(f"Tracking failed for {name}, removing tracker.")
+                logging.debug(f"Tracking failed for {name}, removing tracker.")
         self.trackers = new_trackers
         return updated_frame
 
@@ -138,6 +138,6 @@ class FrameProcessor(threading.Thread):
                         font_scale, (255, 255, 255),
                         font_thickness)
         except Exception as e:
-            print(f"Failed to draw rectangle with name: {e}")
+            logging.debug(f"Failed to draw rectangle with name: {e}")
             return frame  # Rückgabe des ursprünglichen Frames im Fehlerfall
         return blended_frame

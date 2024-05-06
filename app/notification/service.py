@@ -36,6 +36,8 @@ class EventLogger:
             # Anhängen des JSON-Strings am Ende der Datei mit einer Zeilenumbruch-Trennung
             file.write(json.dumps(log_entry) + '\n')
 
+        return log_entry
+
 
 class NotificationService:
     def __init__(self, config_manager):
@@ -52,37 +54,58 @@ class NotificationService:
 
         ensure_directory(self.image_path)
 
+    def format_custom_message(self, log_entry):
+        # Abrufen der Konfiguration für die benutzerdefinierte Nachricht
+        message_template = self.config_manager.get('custom_message')
+
+        # Formatieren des Zeitstempels
+        formatted_time = time.strftime('%Y-%m-%d %H:%M:%S')
+        formatted_date = time.strftime('%Y-%m-%d')
+
+        # Ersetzen der Platzhalter
+        message = message_template.replace('[[name]]', log_entry['name'])
+        message = message.replace('[[time]]', formatted_time.split(' ')[1])
+        message = message.replace('[[date]]', formatted_date)
+        message = message.replace('[[image_url]]', log_entry['image_path'])
+        message = message.replace('[[timestamp]]', str(time.time()))
+
+        logging.info(f"message: {message}")
+
+        return message
+
     def notify(self, name, frame):
         current_time = time.time()
         if name not in self.last_notification_time or (
                 current_time - self.last_notification_time[name]) > self.notification_delay:
             self.last_notification_time[name] = current_time
-            filename, image_path = self.save_image(frame, name, current_time)
+            filename, full_path = self.save_image(frame, name, current_time)
+            log_entry = self.log_event(current_time, name, filename)
             if self.use_web:
-                self.send_http_notification(name)
+                self.send_http_notification(log_entry)
             if self.use_udp:
-                self.send_udp_message(name)
-            self.log_event(current_time, name, filename)
+                self.send_udp_message(log_entry)
+
             logging.info(
                 f"Notification sent for {name} at {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(current_time))}")
 
-    def send_udp_message(self, name):
+    def send_udp_message(self, log_entry):
+        custom_message = self.format_custom_message(log_entry).encode('utf-8')
         if self.use_udp:
             try:
                 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-                    message = f"Alert: {name}".encode('utf-8')
-                    sock.sendto(message, (self.udp_service_url, self.udp_port))
-                    logging.info(f"Sent UDP message to {self.udp_service_url}:{self.udp_port}")
+                    sock.sendto(custom_message, (self.udp_service_url, self.udp_port))
+                    logging.debug(f"Sent UDP message to {self.udp_service_url}:{self.udp_port}")
             except Exception as e:
                 logging.error(f"Failed to send UDP message: {e}")
 
-    def send_http_notification(self, name):
+    def send_http_notification(self, log_entry):
+        custom_message = self.format_custom_message(log_entry).encode('utf-8')
         if self.use_web:
-            full_url = f"{self.web_service_url}/api/notify"
+            full_url = self.web_service_url
             try:
-                response = requests.post(full_url, json={"name": name})
+                response = requests.post(full_url, custom_message)
                 if response.status_code == 200:
-                    logging.info("Notification sent to HTTP endpoint successfully.")
+                    logging.info(f"Notification sent to HTTP endpoint {full_url} successfully.")
                 else:
                     logging.error(f"Failed to send HTTP notification: {response.status_code}")
             except Exception as e:
@@ -96,4 +119,4 @@ class NotificationService:
 
     def log_event(self, timestamp, name, file_name):
         logger = EventLogger(self.log_file, self.config_manager.get('base_url'))
-        logger.log_event(time.time(), name, file_name)
+        return logger.log_event(time.time(), name, file_name)

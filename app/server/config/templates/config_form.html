@@ -227,7 +227,7 @@
 
             <!-- Notification Delay Slider -->
             <div class="row mt-4">
-                <div class="col-6">
+                <div class="col-12">
                     <label for="notificationDelay" class="form-label">Notification Delay: <span
                             id="notificationDelay">{{config.notification_delay}} seconds</span></label>
                     <input type="range" class="form-range" min="10" max="300" step="1" id="notification_delay"
@@ -239,11 +239,11 @@
             </div>
             <!-- Custom Message -->
             <div class="row mt-3">
-                <div class="col-6">
+                <div class="col-12">
                     <label for="custom_message" class="form-label">Custom Message</label>
                     <textarea class="form-control" id="custom_message" name="custom_message" rows="3"
                               placeholder="Enter message with placeholders like [[name]], [[date]], [[time]]">{{config.custom_message}}</textarea>
-                    <small class="text-muted">Use [[name]], [[date]], and [[time]] as placeholders in your
+                    <small class="text-muted">Use [[name]], [[date]], [[time]], [[timestamp]], [[image_url]] as placeholders in your
                         message.</small>
                 </div>
             </div>
@@ -252,6 +252,9 @@
     </div>
 
     <div class="tab-pane fade" id="eventlog" role="tabpanel" aria-labelledby="eventlog-tab">
+       <div class="my-3">
+           <a href="{{ url_for('last_event_image') }}" target="_blank">Last event image</a>
+       </div>
       <div id="eventlog-table"></div>
     </div>
 

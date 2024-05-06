@@ -15,7 +15,12 @@ def initialize_app_structure():
         'output_width': 640,
         'output_height': 480,
         'notification_delay': 60,  # Zeit in Sekunden
-        'custom_message': '[[name]], spotted at [[time]] on [[date]]!',
+        'custom_message': {
+            'name': '[[name]]',
+            'image_url': '[[image_url]]',
+            'time': '[[time]]',
+            'date': '[[date]]',
+        },
         'use_udp': False,
         'use_web': False,
         'web_service_url': '',

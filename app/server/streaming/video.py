@@ -8,8 +8,6 @@ import cv2
 import queue
 
 
-
-
 def check_for_restart_signal(signal_file_path, interval=10):
     while True:
         if os.path.exists(signal_file_path):
