@@ -20,6 +20,7 @@ def initialize_app_structure():
             'image_url': '[[image_url]]',
             'time': '[[time]]',
             'date': '[[date]]',
+            'timestamp': '[[timestamp]]'
         },
         'use_udp': False,
         'use_web': False,
