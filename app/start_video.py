@@ -20,8 +20,8 @@ def main():
     config_manager.load_config()
 
     # Warteschlange für frames
-    frame_queue = queue.Queue(maxsize=500)
-    processed_frame_queue = queue.Queue(maxsize=500)
+    frame_queue = queue.Queue(maxsize=100)
+    processed_frame_queue = queue.Queue(maxsize=50)
     output_size = (config_manager.get('output_width'), config_manager.get('output_height'))
     # Starten des Kamera Managers
     camera_manager = CameraManager(frame_queue, config_manager.get('input_stream_url'), output_size)

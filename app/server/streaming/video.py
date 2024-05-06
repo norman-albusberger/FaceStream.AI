@@ -58,7 +58,7 @@ class VideoStreamingServer:
             last_time = time.time()
             while True:
                 try:
-                    frame = self.frame_queue.get(timeout=1)
+                    frame = self.frame_queue.get(timeout=3)
                     current_time = time.time()
                     _, jpeg = cv2.imencode('.jpg', frame)
                     frame_data = jpeg.tobytes()
