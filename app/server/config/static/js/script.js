@@ -2,6 +2,12 @@ const colorPicker = document.getElementById('colorPicker');
 const transparencySlider = document.getElementById('overlayTransparency');
 const colorOverlay = document.getElementById('colorOverlay');
 
+// Format utc to local date and time
+function formatLocalTime(utcDateString) {
+    let utcDate = new Date(utcDateString + 'Z');  // Füge 'Z' hinzu, um als UTC zu kennzeichnen
+    return utcDate.toLocaleString();  // Konvertiert in die lokale Zeit des Browsers
+}
+
 
 function openModalAndShowImages(data) {
     var imageBlock = `<div class="event-image"><img src="${data.image_path}" class="d-block w-100"></div>`;
@@ -18,17 +24,24 @@ function openModalAndShowImages(data) {
 }
 
 var table = new Tabulator("#eventlog-table", {
-    height: '600px',
-    layout: 'fitColumns',
-    columns: [
-        {title: "Name", field: "name", sorter: "string", width: 200},
-        {
-            title: "Time", field: "timestamp"
-        },
-        {title: "Image Path", field: "image_path"},
-    ],
+        height: '600px',
+        layout: 'fitColumns',
+        columns: [
+            {title: "Name", field: "name", sorter: "string", width: 200},
+            {
+                title: "Time",
+                field: "timestamp",
+                formatter: function (cell, formatterParams) {
+                    let value = cell.getValue();
+                    return formatLocalTime(value);  // Nutze die Funktion, um das Datum zu formatieren
 
-});
+                },
+            },
+            {title: "Image Path", field: "image_path"},
+        ],
+
+    })
+;
 
 
 function sendBaseUrlToServer() {

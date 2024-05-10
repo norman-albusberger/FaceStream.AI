@@ -9,7 +9,7 @@ from config.manager import known_faces_folder
 from config.manager import config_file
 import json
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 default_config = initialize_app_structure()
 
 # Erstellen des 'data'-Ordners, falls nicht vorhanden

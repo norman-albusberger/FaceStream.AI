@@ -10,7 +10,7 @@ from config.manager import ConfigManager
 
 
 # Aktiviere Logging für bessere Fehlerbehebung
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 
 def main():
