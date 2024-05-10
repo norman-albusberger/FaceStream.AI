@@ -15,13 +15,20 @@ def initialize_app_structure():
         'output_width': 640,
         'output_height': 480,
         'notification_delay': 60,  # Zeit in Sekunden
-        'custom_message': {
+        'custom_message_udp': json.dumps({
             'name': '[[name]]',
             'image_url': '[[image_url]]',
             'time': '[[time]]',
             'date': '[[date]]',
             'timestamp': '[[timestamp]]'
-        },
+        }),
+        'custom_message_http': json.dumps({
+            'name': '[[name]]',
+            'image_url': '[[image_url]]',
+            'time': '[[time]]',
+            'date': '[[date]]',
+            'timestamp': '[[timestamp]]'
+        }),
         'use_udp': False,
         'use_web': False,
         'web_service_url': '',

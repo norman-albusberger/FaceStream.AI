@@ -1,7 +1,6 @@
 import cv2
 import threading
 import logging
-from queue import Full
 import time
 import queue
 
@@ -51,7 +50,7 @@ class CameraManager(threading.Thread):
                             try:
                                 # Versuche, den ältesten Frame zu entfernen, um Platz zu schaffen
                                 self.frame_queue.get_nowait()
-                                logging.warning("Frame queue ist voll. Ältester Frame wurde verworfen.")
+                                logging.info("Frame queue ist voll. Ältester Frame wurde verworfen.")
                             except queue.Empty:
                                 # Sollte normalerweise nicht passieren, da wir wissen, dass die Queue voll ist
                                 logging.error("Versuch, aus leerer Queue zu lesen. Das sollte nicht passieren.")

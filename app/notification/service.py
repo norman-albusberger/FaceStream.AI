@@ -54,9 +54,8 @@ class NotificationService:
 
         ensure_directory(self.image_path)
 
-    def format_custom_message(self, log_entry):
+    def format_custom_message(self, message_template, log_entry):
         # Abrufen der Konfiguration für die benutzerdefinierte Nachricht
-        message_template = self.config_manager.get('custom_message')
 
         # Formatieren des Zeitstempels
         formatted_time = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -68,8 +67,6 @@ class NotificationService:
         message = message.replace('[[date]]', formatted_date)
         message = message.replace('[[image_url]]', log_entry['image_path'])
         message = message.replace('[[timestamp]]', str(time.time()))
-
-        logging.info(f"message: {message}")
 
         return message
 
@@ -89,27 +86,52 @@ class NotificationService:
                 f"Notification sent for {name} at {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(current_time))}")
 
     def send_udp_message(self, log_entry):
-        custom_message = self.format_custom_message(log_entry).encode('utf-8')
+        message_template = self.config_manager.get('custom_message_udp')
+        custom_message = self.format_custom_message(message_template, log_entry).encode('utf-8')
         if self.use_udp:
             try:
                 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
                     sock.sendto(custom_message, (self.udp_service_url, self.udp_port))
-                    logging.debug(f"Sent UDP message to {self.udp_service_url}:{self.udp_port}")
+                    logging.debug(f"Sent UDP  message to {self.udp_service_url}:{self.udp_port}: {custom_message}")
+            except socket.error as sock_err:
+                logging.error(f"Socket error occurred: {sock_err}")
             except Exception as e:
                 logging.error(f"Failed to send UDP message: {e}")
 
+    import json
+
     def send_http_notification(self, log_entry):
-        custom_message = self.format_custom_message(log_entry).encode('utf-8')
+        message_template = self.config_manager.get('custom_message_http')
+        custom_message = self.format_custom_message(message_template, log_entry)
         if self.use_web:
             full_url = self.web_service_url
+            headers = {'Content-Type': 'application/json'}
+
             try:
-                response = requests.post(full_url, custom_message)
+                # Versuche, custom_message zu einem Python-Dictionary zu parsen
+                if isinstance(custom_message, str):
+                    custom_message = json.loads(custom_message)
+                elif not isinstance(custom_message, dict):
+                    logging.error("Custom message is neither a JSON string nor a dictionary.")
+                    return
+            except json.JSONDecodeError as e:
+                logging.error(f"Failed to parse custom_message from JSON: {e}")
+                return
+
+            try:
+                custom_message = json.dumps(custom_message).encode('utf-8')
+                response = requests.post(full_url, data=custom_message, headers=headers)
                 if response.status_code == 200:
                     logging.info(f"Notification sent to HTTP endpoint {full_url} successfully.")
                 else:
-                    logging.error(f"Failed to send HTTP notification: {response.status_code}")
-            except Exception as e:
+                    logging.error(f"Failed to send HTTP notification: {response.status_code} - {response.text}")
+                    logging.error(f"Request details: URL={full_url}, Data={custom_message}, Headers={headers}")
+            except requests.exceptions.RequestException as e:
                 logging.error(f"Failed to send HTTP request: {e}")
+                logging.error(f"Request details: URL={full_url}, Data={custom_message}, Headers={headers}")
+            except Exception as e:
+                logging.error(f"An unexpected error occurred: {e}")
+                logging.error(f"Request details: URL={full_url}, Data={custom_message}, Headers={headers}")
 
     def save_image(self, frame, name, timestamp):
         filename = f"{name}_{int(timestamp)}.jpg"

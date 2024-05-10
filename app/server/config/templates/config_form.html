@@ -96,7 +96,7 @@
                     </div>
                     <!-- rechter Bereich -->
                     <section class="col-md-5">
-                        <h3>Overlay Setting in Stream</h3>
+                        <h3>Overlay Settings</h3>
                         <div class="row">
                             <div class="col">
                                 <div class="image-container">
@@ -239,10 +239,17 @@
             </div>
             <!-- Custom Message -->
             <div class="row mt-3">
-                <div class="col-12">
-                    <label for="custom_message" class="form-label">Custom Message</label>
-                    <textarea class="form-control" id="custom_message" name="custom_message" rows="3"
-                              placeholder="Enter message with placeholders like [[name]], [[date]], [[time]]">{{config.custom_message}}</textarea>
+                <div class="col-6">
+                    <label for="custom_message_udp" class="form-label">Custom Message for UDP</label>
+                    <textarea class="form-control" id="custom_message_udp" name="custom_message_udp" rows="3"
+                              placeholder="Enter message with placeholders like [[name]], [[date]], [[time]]">{{config.custom_message_udp}}</textarea>
+                    <small class="text-muted">Use [[name]], [[date]], [[time]], [[timestamp]], [[image_url]] as placeholders in your
+                        message.</small>
+                </div>
+                <div class="col-6">
+                    <label for="custom_message_http" class="form-label">Custom Message for HTTP</label>
+                    <textarea class="form-control" id="custom_message_http" name="custom_message_http" rows="3"
+                              placeholder="Enter message with placeholders like [[name]], [[date]], [[time]]">{{config.custom_message_http}}</textarea>
                     <small class="text-muted">Use [[name]], [[date]], [[time]], [[timestamp]], [[image_url]] as placeholders in your
                         message.</small>
                 </div>
@@ -255,6 +262,9 @@
        <div class="my-3">
            <a href="{{ url_for('last_event_image') }}" target="_blank">Last event image</a>
        </div>
+        <p class="alert alert-info">
+            <b>Note:</b> The notification delay is used for event logging.
+        </p>
       <div id="eventlog-table"></div>
     </div>
 

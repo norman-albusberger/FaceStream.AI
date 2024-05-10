@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css"/>
 
-
     <title></title>
 </head>
 <body>
@@ -28,6 +27,24 @@
     </div>
 </div>
 
+<div class="modal" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                    <div class="image-wrapper">
+                        <!-- Slides werden hier über JavaScript eingefügt -->
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 <header class="navbar navbar-expand-lg navbar-light bd-navbar sticky-top bg-light mb-3">
     <nav class="container-xxl bd-gutter flex-wrap flex-lg-nowrap" aria-label="Main navigation">
         <a class="navbar-brand p-0 me-0 me-lg-2" href="/" aria-label="Bootstrap">
@@ -35,7 +52,7 @@
         </a>
         <div class="mx-auto"></div>
         <div>
-            <button type="button" class="btn btn-success btn-sm" id="submitFormButton">Änderungen speichern</button>
+            <button type="button" class="btn btn-success btn-sm" id="submitFormButton">Save Changes</button>
         </div>
     </nav>
 </header>

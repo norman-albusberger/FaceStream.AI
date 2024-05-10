@@ -1,17 +1,35 @@
 const colorPicker = document.getElementById('colorPicker');
 const transparencySlider = document.getElementById('overlayTransparency');
 const colorOverlay = document.getElementById('colorOverlay');
+
+
+function openModalAndShowImages(data) {
+    var imageBlock = `<div class="event-image"><img src="${data.image_path}" class="d-block w-100"></div>`;
+    var e = document.querySelector('.image-wrapper');
+    e.innerHTML = imageBlock;
+    var imageModalLabel = document.querySelector('#imageModalLabel')
+    imageModalLabel.innerHTML = `${data.name} - ${data.timestamp}`
+
+    var modalElement = document.getElementById('imageModal');
+    var modal = new bootstrap.Modal(modalElement);
+    modal.show();
+
+
+}
+
 var table = new Tabulator("#eventlog-table", {
     height: '600px',
     layout: 'fitColumns',
     columns: [
         {title: "Name", field: "name", sorter: "string", width: 200},
-        {title: "Time", field: "timestamp", sorter: "timestamp"},
+        {
+            title: "Time", field: "timestamp"
+        },
         {title: "Image Path", field: "image_path"},
-
     ],
 
 });
+
 
 function sendBaseUrlToServer() {
     const baseUrl = window.location.origin;
@@ -25,7 +43,6 @@ function sendBaseUrlToServer() {
 
     fetch('/api/setBaseUrl', requestOptions)
         .then(response => response.json())
-        .then(data => console.log('Response:', data))
         .catch(error => console.error('Error:', error));
 }
 
@@ -70,9 +87,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     sendBaseUrlToServer();
     table.setData('/event_log');
-    table.on("rowSelectionChanged", function(data, rows){
-    document.getElementById("select-stats").innerHTML = data.length;
-});
+    table.on("rowClick", function (e, row) {
+        var data = row.getData();
+        openModalAndShowImages(data);
+    });
+
 
 //form submit
     document.getElementById('submitFormButton').addEventListener('click', async function (event) {
@@ -147,4 +166,5 @@ document.addEventListener("DOMContentLoaded", function () {
             updateFacesList();
         }
     }
-});
+})
+;
