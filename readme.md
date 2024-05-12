@@ -98,4 +98,13 @@ Replace `localhost` with your Docker host IP if necessary.
 Contributions are welcome! Please fork the repository, make your changes, and submit a pull request.
 
 ## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+
+FaceStream.AI is licensed under the [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.en.html) (AGPLv3).
+
+### Key Points of AGPLv3
+
+- **Network Use Is Distribution**: Users who interact with the software over a network are afforded the same rights as those who receive binary copies. This means if you run a modified version of the software on a server and users interact with it over the network, you must also share the modified source code under AGPLv3.
+
+- **Share and Share Alike**: If you distribute modified versions of the software, you must also make the source code of those versions available under the same license.
+
+- **User Protections**: The license
