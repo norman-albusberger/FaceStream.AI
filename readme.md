@@ -14,6 +14,7 @@
 ## Fast and lightweight for dockerized setups
 * you can adjust the face recognition interval for your needs (default is every 60 frames)
 * uses high performant face detection AI models
+* makes extensive use of threading to use hardware resources efficiently  
 
 # Installation Guide for FaceStream.AI
 
