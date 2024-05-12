@@ -1,7 +1,7 @@
 <p align="center"><em>Face Recognition in Live Video</em></p>
 <h1 align="center">FaceStream.AI</h1>
 
-![example homepage](example-image.jpg)
+![Screenshots](screenshots.jpg)
 
 ### Features
 * Real-time video streaming with face recognition: Recognize faces in live video and serves a stream with rectangle rendering ``<your-host>:<5001>/stream``
@@ -9,7 +9,7 @@
 * Eventlog with safed image if a face is recognized, viewable in web interface
 * configurable UDP/HTTP *Notification Service* for detected faces to notify other services 
 
-![Screenshots](screenshots.jpg)
+![example homepage](example-image.jpg)
 
 ## Fast and lightweight for dockerized setups
 * you can adjust the face recognition interval for your needs (default is every 60 frames)
