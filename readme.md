@@ -1,7 +1,7 @@
 <p align="center"><em>Face Recognition in Live Video</em></p>
 <h1 align="center">FaceStream.AI</h1>
 
-![example homepage](example-image.jpg)
+![Screenshots](screenshots.jpg)
 
 ### Features
 * Real-time video streaming with face recognition: Recognize faces in live video and serves a stream with rectangle rendering ``<your-host>:<5001>/stream``
@@ -9,7 +9,7 @@
 * Eventlog with safed image if a face is recognized, viewable in web interface
 * configurable UDP/HTTP *Notification Service* for detected faces to notify other services 
 
-![Screenshots](screenshots.jpg)
+![example homepage](example-image.jpg)
 
 ## Fast and lightweight for dockerized setups
 * you can adjust the face recognition interval for your needs (default is every 60 frames)
@@ -75,24 +75,6 @@ Replace `localhost` with your Docker host IP if necessary.
 
 - Ensure your Docker daemon is running before executing the build and run commands.
 - Modify the Dockerfile or application code as necessary for custom setups or configurations.
-```
-
-
-## Container Run Options
-
-```-p 8000:5000 -p 8080:5001 -v data:/FaceStream.ai/data``` 
-
-#### Port Mapping
-- **Port 8000 (Host) -> Port 5000 (Container)**:
-  - This port is mapped to the default port used by the application for serving the configuration web service.
-
-- **Port 8080 (Host) -> Port 5001 (Container)**:
-  - This port is mapped to the default port used by the video service.
-
-#### Volume Mounting
-- **data:/FaceStream.ai/data**:
-  - This volume is mounted to store persistent data used by the application. It allows the application to store and access data such as the config.json and knownfaces folder.
-
 
 ## Contributing
 Contributions are welcome! Please fork the repository, make your changes, and submit a pull request.
