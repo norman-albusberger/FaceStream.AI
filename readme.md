@@ -75,24 +75,6 @@ Replace `localhost` with your Docker host IP if necessary.
 
 - Ensure your Docker daemon is running before executing the build and run commands.
 - Modify the Dockerfile or application code as necessary for custom setups or configurations.
-```
-
-
-## Container Run Options
-
-```-p 8000:5000 -p 8080:5001 -v data:/FaceStream.ai/data``` 
-
-#### Port Mapping
-- **Port 8000 (Host) -> Port 5000 (Container)**:
-  - This port is mapped to the default port used by the application for serving the configuration web service.
-
-- **Port 8080 (Host) -> Port 5001 (Container)**:
-  - This port is mapped to the default port used by the video service.
-
-#### Volume Mounting
-- **data:/FaceStream.ai/data**:
-  - This volume is mounted to store persistent data used by the application. It allows the application to store and access data such as the config.json and knownfaces folder.
-
 
 ## Contributing
 Contributions are welcome! Please fork the repository, make your changes, and submit a pull request.
