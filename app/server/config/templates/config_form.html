@@ -167,7 +167,8 @@
                     {% for face in known_faces %}
                     <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                         <span>{{ face }}</span>  <!-- Text auf der linken Seite -->
-                        <img src="{{ url_for('knownfaces', filename=face) }}" class="img-thumbnail" alt="Gesicht" width="100px">
+                        <img src="{{ url_for('knownfaces', filename=face) }}" class="img-thumbnail" alt="Gesicht"
+                             width="100px">
                         <!-- Löschbutton-Formular auf der rechten Seite -->
                         <form action="{{ url_for('delete_image', filename=face) }}" method="post"
                               style="margin-bottom: 0;">
@@ -182,9 +183,13 @@
     <div class="tab-pane fade" id="notification" role="tabpanel" aria-labelledby="notification-tab">
         <form method="post" id="notification-form" class="needs-validation" novalidate>
             <div class="row mt-3">
+                 <p class="alert alert-info">
+                        <b>Note:</b> The messages are sent by the video server. You must use the host name of the video server if it is required for the message-receiving servers.
+                    </p>
                 <!-- UDP Messaging Service Configuration -->
                 <div class="col-md-6">
                     <h3>UDP Messaging Service</h3>
+
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="use_udp" name="use_udp"
                                {% if config.use_udp %}checked{% endif %} value="1">
@@ -234,7 +239,8 @@
                            name="notification_delay"
                            value="{{config.notification_delay}}"
                            oninput="updateDelayDisplay(this.value)">
-                    <small class="text-muted">Drag the slider to set delay.</small>
+                    <small class="text-muted">This is the time the server waits until it sends the message again for the
+                        face recognition event. </small>
                 </div>
             </div>
             <!-- Custom Message -->
@@ -243,14 +249,16 @@
                     <label for="custom_message_udp" class="form-label">Custom Message for UDP</label>
                     <textarea class="form-control" id="custom_message_udp" name="custom_message_udp" rows="3"
                               placeholder="Enter message with placeholders like [[name]], [[date]], [[time]]">{{config.custom_message_udp}}</textarea>
-                    <small class="text-muted">Use [[name]], [[date]], [[time]], [[timestamp]], [[image_url]] as placeholders in your
+                    <small class="text-muted">Use [[name]], [[date]], [[time]], [[timestamp]], [[image_url]] as
+                        placeholders in your
                         message.</small>
                 </div>
                 <div class="col-6">
                     <label for="custom_message_http" class="form-label">Custom Message for HTTP</label>
                     <textarea class="form-control" id="custom_message_http" name="custom_message_http" rows="3"
                               placeholder="Enter message with placeholders like [[name]], [[date]], [[time]]">{{config.custom_message_http}}</textarea>
-                    <small class="text-muted">Use [[name]], [[date]], [[time]], [[timestamp]], [[image_url]] as placeholders in your
+                    <small class="text-muted">Use [[name]], [[date]], [[time]], [[timestamp]], [[image_url]] as
+                        placeholders in your
                         message.</small>
                 </div>
             </div>
@@ -259,13 +267,13 @@
     </div>
 
     <div class="tab-pane fade" id="eventlog" role="tabpanel" aria-labelledby="eventlog-tab">
-       <div class="my-3">
-           <a href="{{ url_for('last_event_image') }}" target="_blank">Last event image</a>
-       </div>
+        <div class="my-3">
+            <a href="{{ url_for('last_event_image') }}" target="_blank">Last event image</a>
+        </div>
         <p class="alert alert-info">
             <b>Note:</b> The notification delay is used for event logging.
         </p>
-      <div id="eventlog-table"></div>
+        <div id="eventlog-table"></div>
     </div>
 
 </div>
