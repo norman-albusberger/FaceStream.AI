@@ -9,6 +9,8 @@
 * Eventlog with safed image if a face is recognized, viewable in web interface
 * configurable UDP/HTTP *Notification Service* for detected faces to notify other services 
 
+![Screenshots](screenshots.jpg)
+
 ## Fast and lightweight for dockerized setups
 * you can adjust the face recognition interval for your needs (default is every 60 frames)
 * uses high performant face detection AI models
